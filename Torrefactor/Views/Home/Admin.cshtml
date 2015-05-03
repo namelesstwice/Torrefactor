@@ -1,0 +1,55 @@
+﻿@section Content {
+	<div>
+		<button class="btn btn-primary" data-bind="click: reload, css: { disabled: isLoading }">
+			<span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Оновить список сортов
+		</button>
+		<button class="btn btn-primary" data-bind="click: upload, css: { disabled: isLoading }">
+			<span class="glyphicon glyphicon-cloud-upload" aria-hidden="true"></span> Создать заказ на Torrefacto
+		</button>
+		<button class="btn btn-primary" data-bind="click: clear, css: { disabled: isLoading }">
+			<span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Удалить все заказы
+		</button>
+	</div>
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Пользователь</th>
+				<th>Заказ</th>
+				<th>Стоимость</th>
+			</tr>
+		</thead>
+		<tfoot>
+			<tr>
+				<th></th>
+				<th></th>
+				<th><span data-bind="text: overallPrice"></span>₽</th>
+			</tr>
+		</tfoot>
+		<tbody data-bind="foreach: orders">
+			<tr>
+				<td data-bind="text: name"></td>
+				<td>
+					<!-- ko foreach: orders -->
+						<!-- ko text: coffee --><!-- /ko -->
+						<!-- ko text: weight --><!-- /ko -->г
+						<!-- ko if: count() > 1 -->
+							&times;&nbsp;<!-- ko text: count --><!-- /ko -->
+						<!-- /ko-->,
+					<!-- /ko -->
+				</td>
+				<td><span data-bind="text: price"></span>₽</td>
+			</tr>
+		</tbody>
+	</table>
+}
+
+@section Scripts {
+	<script src="~/Content/js/userOrders.js"></script>
+	<script>
+		$(function () {
+			var user = new UserViewModel();
+			var userOrders = new UserOrderViewModel(user);
+			ko.applyBindings(userOrders);
+		});
+	</script>
+}

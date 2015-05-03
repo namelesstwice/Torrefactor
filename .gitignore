@@ -1,0 +1,10 @@
+*.user
+*.suo
+*.log
+[Bb]in
+[Dd]ebug*/
+*.sbr
+obj/
+[Rr]elease*/
+_ReSharper*/
+packages/
