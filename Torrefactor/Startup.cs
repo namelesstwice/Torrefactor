@@ -82,7 +82,13 @@ namespace Torrefactor
 			kernel.Bind<Config>().ToMethod(ctx => settings.Get<Config>());
 
 			// DAL
-			kernel.Bind<IMongoDatabase>().ToConstant(new MongoClient("mongodb://localhost:27017").GetDatabase("coffee"));
+			kernel.Bind<IMongoDatabase>()
+				.ToMethod(ctx => 
+				{
+					var cfg = ctx.Kernel.Get<Config>();
+					return new MongoClient(cfg.MongodbConnectionString).GetDatabase(cfg.DatabaseName);
+				})
+				.InSingletonScope();
 			kernel.Bind<CoffeeKindRepository>().ToSelf().InSingletonScope();
 			kernel.Bind<CoffeeOrderRepository>().ToSelf().InSingletonScope();
 

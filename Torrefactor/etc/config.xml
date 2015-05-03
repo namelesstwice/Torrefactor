@@ -6,6 +6,8 @@
 		<TorrefactoLogin>johndoe@yourdomain.com</TorrefactoLogin>
 		<TorrefactoPassword>123456</TorrefactoPassword>
 		<AdminNames>localdomain\johndoe</AdminNames>
+		<MongodbConnectionString>mongodb://localhost:27017</MongodbConnectionString>
+		<DatabaseName>coffee</DatabaseName>
 	</Config>
 	
 	-->
