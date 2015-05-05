@@ -83,8 +83,8 @@ namespace Torrefactor.Controllers
 			if (!User.IsAdmin(_config))
 				throw new UnauthorizedAccessException();
 
-			await _coffeeKindRepository.Clean();
 			var coffeeKinds = await _torrefactoClient.GetCoffeeKinds();
+			await _coffeeKindRepository.Clean();
 			await _coffeeKindRepository.Insert(coffeeKinds);
 		}
 
