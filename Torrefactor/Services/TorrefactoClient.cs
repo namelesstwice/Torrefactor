@@ -20,7 +20,7 @@ namespace Torrefactor.Services
 
 		public async Task<IReadOnlyCollection<CoffeeKind>> GetCoffeeKinds()
 		{
-			var request = WebRequest.CreateHttp(new Uri("http://www.torrefacto.ru/catalog/roasted/"));
+			var request = WebRequest.CreateHttp(new Uri(getFullUrl("catalog/roasted/")));
 			var response = await request.GetResponseAsync();
 
 			var htmlDoc = new HtmlDocument();
@@ -65,8 +65,8 @@ namespace Torrefactor.Services
 
 		public async Task Authentificate()
 		{
-			await _client.DownloadStringTaskAsync("http://torrefacto.ru");
-			await _client.UploadValuesTaskAsync("http://torrefacto.ru/ajaxa.php", new NameValueCollection
+			await _client.DownloadStringTaskAsync(getFullUrl(""));
+			await _client.UploadValuesTaskAsync(getFullUrl("ajaxa.php"), new NameValueCollection
 			{
 				{"USER_LOGIN", _config.TorrefactoLogin},
 				{"USER_PASSWORD", _config.TorrefactoPassword},
@@ -75,7 +75,7 @@ namespace Torrefactor.Services
 
 		public Task CleanupBasket()
 		{
-			return _client.UploadStringTaskAsync("http://torrefacto.ru/include/bas_delete.php", "POST", "");
+			return _client.UploadStringTaskAsync(getFullUrl("include/bas_delete.php"), "POST", "");
 		}
 
 		public Task AddToBasket(AvailableCoffeeKind kind, CoffeePack pack, int count)
@@ -91,13 +91,13 @@ namespace Torrefactor.Services
 				{"HOW_0", "Не молоть"},
 			};
 
-			return _client.UploadValuesTaskAsync("http://torrefacto.ru/ajax.php", data);
+			return _client.UploadValuesTaskAsync(getFullUrl("/ajax.php"), data);
 		}
 
 		private static async Task<Dictionary<string, string>> getPackOptions(string id)
 		{
 			var request = WebRequest.CreateHttp(
-				new Uri(String.Format((string)"http://www.torrefacto.ru/ajax.php?id={0}&type=roasted", id)));
+				new Uri(String.Format(getFullUrl("ajax.php?id={0}&type=roasted"), id)));
 			var response = await request.GetResponseAsync();
 
 			var htmlDoc = new HtmlDocument();
@@ -151,6 +151,12 @@ namespace Torrefactor.Services
 			return node.Attributes.Any(a => a.Name == "name" && a.Value == name);
 		}
 
+		private static string getFullUrl(string relativePath)
+		{
+			return string.Format("{0}/{1}", _torrefactoHostName, relativePath);
+		}
+
+		private const string _torrefactoHostName = "http://www.torrefacto.ru";
 		private readonly CookieAwareWebClient _client = new CookieAwareWebClient();
 		private readonly Config _config;
 	}
