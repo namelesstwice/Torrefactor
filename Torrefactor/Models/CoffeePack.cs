@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace Torrefactor.Models
 {
@@ -29,6 +30,8 @@ namespace Torrefactor.Models
 		{
 		}
 
+		public PackState State { get; private set; }
+
 		public int Weight { get; private set; }
 
 		public int Price { get; private set; }
@@ -41,6 +44,32 @@ namespace Torrefactor.Models
 		public string CoffeeKindName { get; private set; }
 
 		public string TorrefactoId { get; private set; }
+
+		public void Refresh(AvailableCoffeeKind coffeeKind)
+		{
+			if (coffeeKind.Name != CoffeeKindName)
+				throw new ArgumentException("Coffee kind name must match.");
+
+			var samePack = coffeeKind.AvailablePacks.SingleOrDefault(p => p.Weight == Weight);
+			if (samePack == null)
+			{
+				MarkAsUnavailable();
+				return;
+			}
+
+			if (Price != samePack.Price)
+			{
+				State = PackState.PriceChanged;
+			}
+
+			Price = samePack.Price;
+		}
+
+
+		public void MarkAsUnavailable()
+		{
+			State = PackState.Unavailable;
+		}
 
 		public static CoffeePack.Builder Create(int weight, int price)
 		{
@@ -97,5 +126,12 @@ namespace Torrefactor.Models
 				return res;
 			}
 		}
+	}
+
+	public enum PackState
+	{
+		Available,
+		PriceChanged,
+		Unavailable
 	}
 }

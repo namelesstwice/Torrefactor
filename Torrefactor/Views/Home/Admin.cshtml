@@ -26,15 +26,17 @@
 			</tr>
 		</tfoot>
 		<tbody data-bind="foreach: orders">
-			<tr>
+			<tr data-bind="css: {'warning': overallState() == 1, 'danger': overallState() == 2}">
 				<td data-bind="text: name"></td>
 				<td>
 					<!-- ko foreach: orders -->
+					<span data-bind="css: {'text-primary': state() == 0, 'text-warning': state() == 1, 'text-danger': state() == 2}">
 						<!-- ko text: coffee --><!-- /ko -->
 						<!-- ko text: weight --><!-- /ko -->г
 						<!-- ko if: count() > 1 -->
-							&times;&nbsp;<!-- ko text: count --><!-- /ko -->
+						&times;&nbsp;<!-- ko text: count --><!-- /ko -->
 						<!-- /ko-->,
+					</span>
 					<!-- /ko -->
 				</td>
 				<td><span data-bind="text: price"></span>р</td>

@@ -13,10 +13,11 @@ namespace Torrefactor.Controllers
 	[RoutePrefix("api/users")]
 	public class UserController : ApiController
 	{
-		public UserController(Config config, CoffeeOrderRepository coffeeOrderRepository)
+		public UserController(Config config, CoffeeOrderRepository coffeeOrderRepository, CoffeeKindRepository coffeeKindRepository)
 		{
 			_config = config;
 			_coffeeOrderRepository = coffeeOrderRepository;
+			_coffeeKindRepository = coffeeKindRepository;
 		}
 
 		[Route(""), HttpGet]
@@ -37,6 +38,27 @@ namespace Torrefactor.Controllers
 				throw new UnauthorizedAccessException();
 
 			var orders = await _coffeeOrderRepository.GetAll();
+			var kinds = (await _coffeeKindRepository.Get(0, 1000)).ToDictionary(p => p.Name);
+
+			foreach (var pack in orders.SelectMany(o => o.Packs))
+			{
+				CoffeeKind kind;
+
+				if (!kinds.TryGetValue(pack.CoffeeKindName, out kind))
+				{
+					pack.MarkAsUnavailable();
+					continue;
+				}
+
+				var availableCoffeKind = kind as AvailableCoffeeKind;
+				if (availableCoffeKind == null)
+				{
+					pack.MarkAsUnavailable();
+					continue;
+				}
+
+				pack.Refresh(availableCoffeKind);
+			}
 
 			return orders
 				.Where(o => o.Packs.Any())
@@ -47,19 +69,27 @@ namespace Torrefactor.Controllers
 						.GroupBy(p => new
 						{
 							Coffee = p.CoffeeKindName,
-							Weight = p.Weight
+							Weight = p.Weight,
+							State = p.State
 						})
 						.Select(p => new
 						{
 							p.Key.Coffee,
 							p.Key.Weight,
+							p.Key.State,
 							Count = p.Count()
 						}),
+					OverallState = o.Packs.Any(p => p.State == PackState.Unavailable)
+						? PackState.Unavailable
+						: o.Packs.Any(p => p.State == PackState.PriceChanged)
+							? PackState.PriceChanged 
+							: PackState.Available,
 					Price = o.Packs.Sum(_ => _.PriceWithRebate)
 				});
 		}
 
 		private readonly Config _config;
 		private readonly CoffeeOrderRepository _coffeeOrderRepository;
+		private readonly CoffeeKindRepository _coffeeKindRepository;
 	}
 }
