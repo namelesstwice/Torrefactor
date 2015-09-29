@@ -89,6 +89,11 @@ namespace Torrefactor.Models
 				get { return _pack.Weight; }
 			}
 
+			public int Price
+			{
+				get { return _pack.Price; }
+			}
+
 			public Builder(CoffeePack pack)
 			{
 				_pack = pack;

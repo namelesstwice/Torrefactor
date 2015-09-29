@@ -51,16 +51,56 @@ namespace Torrefactor.Services
 					continue;
 				}
 
-				var options = await getPackOptions(kind.TorrefactoId);
-				foreach (var pack in kind.PacksAndPrices)
-				{
-					pack.SetId(options[pack.Weight.ToString(CultureInfo.InvariantCulture)]);
-				}
+				applyPackIds(kind.PacksAndPrices, (await getPackIds(kind.TorrefactoId)).ToArray());
 
 				result.Add(new AvailableCoffeeKind(kind.Name, int.Parse(kind.TorrefactoId), kind.PacksAndPrices));
 			}
 
 			return result;
+		}
+
+		private void applyPackIds(CoffeePack.Builder[] packsAndPrices, string[] packIds)
+		{
+			if (packIds.Length != packsAndPrices.Length)
+				throw new InvalidOperationException("Parsed pack ids count doesn't match parsed packs count.");
+
+			if (!tryMatchPacksByWeights(packsAndPrices, packIds) &&
+			    !tryMatchPacksByPrices(packsAndPrices, packIds))
+			{
+				throw new InvalidOperationException("Invalid pack ids: can't parse weight or price.");
+			}
+		}
+
+		private static bool tryMatchPacksByWeights(CoffeePack.Builder[] packsAndPrices, string[] packIds)
+		{
+			return tryMatchPacks(packsAndPrices, packIds, id => id.Split('-').Last(), p => p.Weight.ToString(CultureInfo.InvariantCulture));
+		}
+
+		private static bool tryMatchPacksByPrices(CoffeePack.Builder[] packsAndPrices, string[] packIds)
+		{
+			return tryMatchPacks(packsAndPrices, packIds, id => id.Split('-').Skip(1).First(), p => p.Price.ToString(CultureInfo.InvariantCulture));
+		}
+
+		private static bool tryMatchPacks(
+			CoffeePack.Builder[] packsAndPrices, 
+			string[] packIds, 
+			Func<string, string> attributeParser,
+			Func<CoffeePack.Builder, string> attributeSelector)
+		{
+			HashSet<CoffeePack.Builder> matchedPacks = new HashSet<CoffeePack.Builder>();
+
+			var parsedAttributes = packIds.Select(attributeParser).ToArray();
+			for (int i = 0; i < parsedAttributes.Length; i++)
+			{
+				var matchingPack = packsAndPrices.FirstOrDefault(p => attributeSelector(p) == parsedAttributes[i]);
+				if (matchingPack == null)
+					return false;
+
+				matchingPack.SetId(packIds[i]);
+				matchedPacks.Add(matchingPack);
+			}
+
+			return matchedPacks.Count == packsAndPrices.Length;
 		}
 
 		public async Task Authentificate()
@@ -94,22 +134,19 @@ namespace Torrefactor.Services
 			return _client.UploadValuesTaskAsync(getFullUrl("/ajax.php"), data);
 		}
 
-		private static async Task<Dictionary<string, string>> getPackOptions(string id)
+		private static async Task<IEnumerable<string>> getPackIds(string coffeKindId)
 		{
 			var request = WebRequest.CreateHttp(
-				new Uri(String.Format(getFullUrl("ajax.php?id={0}&type=roasted"), id)));
+				new Uri(String.Format(getFullUrl("ajax.php?id={0}&type=roasted"), coffeKindId)));
 			var response = await request.GetResponseAsync();
 
 			var htmlDoc = new HtmlDocument();
 			htmlDoc.Load(response.GetResponseStream(), Encoding.UTF8);
 
-			var options = htmlDoc.DocumentNode.Descendants("select")
+			return htmlDoc.DocumentNode.Descendants("select")
 				.Single(_ => hasName(_, "id_0"))
 				.Descendants("option")
-				.Select(n => n.Attributes["value"].Value)
-				.ToDictionary(_ => _.Split('-').Last());
-
-			return options;
+				.Select(n => n.Attributes["value"].Value);
 		}
 
 		private static IEnumerable<CoffeePack.Builder> tryParsePacksAndPrices(HtmlNode priceHolder)
