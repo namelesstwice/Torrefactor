@@ -33,7 +33,7 @@ namespace Torrefactor.Services
 					.ChildNodes.SingleOrDefault(n => hasClass(n, "price-hold"))
 				let torrefactoId = tryParseId(priceHolder)
 				let packsAndPrices = tryParsePacksAndPrices(priceHolder)
-				let name = div.ChildNodes.Single(n => n.Name == "h3").InnerText.Trim()
+				let name = div.ChildNodes.Single(n => n.Name == "div" && hasClass(n, "h3")).InnerText.Trim()
 				select new
 				{
 					Name = name,
