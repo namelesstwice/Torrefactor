@@ -83,7 +83,26 @@ namespace Torrefactor.Controllers
 			if (!User.IsAdmin(_config))
 				throw new UnauthorizedAccessException();
 
-			var coffeeKinds = await _torrefactoClient.GetCoffeeKinds();
+			var coffeeKinds = (await _torrefactoClient.GetCoffeeKinds())
+				.ToLookup(k => k.Name)
+				.Select(group =>
+				{
+					var allKindsWithSameName = group.ToArray();
+					if (allKindsWithSameName.Length == 1)
+						return allKindsWithSameName[0];
+
+					var availableCoffeKinds = allKindsWithSameName
+						.Where(k => k is AvailableCoffeeKind)
+						.ToArray();
+
+					if (availableCoffeKinds.Length == 1)
+						return availableCoffeKinds[0];
+
+					throw new InvalidOperationException(
+						"Unexpeted coffee kind count with name: " + group.Key);
+				})
+				.ToArray();
+
 			await _coffeeKindRepository.Clean();
 			await _coffeeKindRepository.Insert(coffeeKinds);
 		}
