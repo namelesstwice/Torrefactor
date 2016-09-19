@@ -8,3 +8,4 @@ obj/
 [Rr]elease*/
 _ReSharper*/
 packages/
+.vs/config/applicationhost.config
