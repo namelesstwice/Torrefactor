@@ -98,9 +98,13 @@ namespace Torrefactor.Controllers
 					if (availableCoffeKinds.Length == 1)
 						return availableCoffeKinds[0];
 
+					if (availableCoffeKinds.Length == 0)
+						return null;
+
 					throw new InvalidOperationException(
 						"Unexpeted coffee kind count with name: " + group.Key);
 				})
+				.Where(k => k != null)
 				.ToArray();
 
 			await _coffeeKindRepository.Clean();
