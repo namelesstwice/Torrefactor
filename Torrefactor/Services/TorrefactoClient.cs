@@ -129,6 +129,7 @@ namespace Torrefactor.Services
 				{"id_0", torrefactoId},
 				{"quantity", count.ToString(CultureInfo.InvariantCulture)},
 				{"HOW_0", "Не молоть"},
+				{"package", "Зип-лок" }
 			};
 
 			return _client.UploadValuesTaskAsync(getFullUrl("/ajax.php"), data);
@@ -193,7 +194,7 @@ namespace Torrefactor.Services
 			return string.Format("{0}/{1}", _torrefactoHostName, relativePath);
 		}
 
-		private const string _torrefactoHostName = "http://www.torrefacto.ru";
+		private const string _torrefactoHostName = "https://www.torrefacto.ru";
 		private readonly CookieAwareWebClient _client = new CookieAwareWebClient();
 		private readonly Config _config;
 	}
