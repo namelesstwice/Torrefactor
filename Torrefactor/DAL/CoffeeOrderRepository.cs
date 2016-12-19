@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using MongoDB.Driver;
+using Torrefactor.Exceptions;
 using Torrefactor.Models;
 
 namespace Torrefactor.DAL
@@ -21,9 +21,16 @@ namespace Torrefactor.DAL
 			return await Collection.Find(_ => _.Username == userName).SingleOrDefaultAsync();
 		}
 
-		public Task Update(CoffeeOrder userOrders)
+		public Task Update(CoffeeOrder userOrders, bool upsert = false)
 		{
-			return Collection.ReplaceOneAsync(_ => _.Username == userOrders.Username, userOrders, new UpdateOptions { IsUpsert = true });
+			var filter = Builders<CoffeeOrder>.Filter.Where(x => x.Username == userOrders.Username);
+			Builders<CoffeeOrder>.Filter.And(filter, Builders<CoffeeOrder>.Filter.Where(x => x.ChangeStamp == userOrders.ChangeStamp));
+
+			var updateResult = Collection.ReplaceOneAsync(filter, new CoffeeOrder(userOrders), new UpdateOptions { IsUpsert = upsert });
+			if (updateResult == null)
+				throw new ConcurrencyException("concurrency");
+
+			return updateResult;
 		}
 	}
 }
