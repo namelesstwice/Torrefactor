@@ -170,13 +170,10 @@ namespace Torrefactor.Services
 
 		private static string tryParseId(HtmlNode priceHolder)
 		{
-			if (priceHolder == null)
-				return null;
-
 			return priceHolder
-				.ChildNodes.Single(n => n.Name == "a")
-				.Attributes.Single(a => a.Name == "data-id")
-				.Value;
+				?.ChildNodes.SingleOrDefault(n => n.Name == "a")
+				?.Attributes.SingleOrDefault(a => a.Name == "data-id")
+				?.Value;
 		}
 
 		private static bool hasClass(HtmlNode node, string className)
