@@ -61,17 +61,20 @@ namespace Torrefactor.Controllers
 			var desiredPack = await getDesiredPack(coffeeName, weight);
 			userOrders.AddCoffeePack(desiredPack);
 
-			await _coffeeOrderRepository.Update(userOrders);
+			await _coffeeOrderRepository.Update(userOrders, upsert:true);
 		}
 
 		[Route("remove"), HttpPost]
 		public async Task Remove(string coffeeName, int weight)
 		{
-			var userOrders =
-				(await _coffeeOrderRepository.GetUserOrders(User.Identity.Name))
-				?? new CoffeeOrder(User.Identity.Name);
+			var userOrders = await _coffeeOrderRepository.GetUserOrders(User.Identity.Name);
+			if (userOrders == null)
+				throw new ArgumentException(nameof(userOrders));
 
 			var desiredPack = await getDesiredPack(coffeeName, weight);
+			if (!userOrders.Packs.Contains(desiredPack))
+				throw new ArgumentException("attempt to remove not added coffee");
+
 			userOrders.RemoveCoffeePack(desiredPack);
 
 			await _coffeeOrderRepository.Update(userOrders);

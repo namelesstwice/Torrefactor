@@ -192,6 +192,7 @@
     <Compile Include="DAL\CoffeeKindRepository.cs" />
     <Compile Include="DAL\CoffeeOrderRepository.cs" />
     <Compile Include="DAL\Repository.cs" />
+    <Compile Include="Exceptions\ConcurrencyException.cs" />
     <Compile Include="Models\CoffeeKind.cs" />
     <Compile Include="Models\CoffeeOrder.cs" />
     <Compile Include="Models\CoffeePack.cs" />
