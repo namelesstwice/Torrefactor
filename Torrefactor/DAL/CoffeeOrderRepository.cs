@@ -9,11 +9,6 @@ namespace Torrefactor.DAL
 	{
 		public CoffeeOrderRepository(IMongoDatabase db) : base(db, "coffeeOrders")
 		{
-			Collection.Indexes
-				.CreateOneAsync(
-					Builders<CoffeeOrder>.IndexKeys.Ascending(_ => _.Username), 
-					new CreateIndexOptions { Unique = true })
-				.Wait();
 		}
 
 		public async Task<CoffeeOrder> GetUserOrders(string userName)
