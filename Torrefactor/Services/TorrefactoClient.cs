@@ -33,12 +33,12 @@ namespace Torrefactor.Services
 					.ChildNodes.SingleOrDefault(n => hasClass(n, "price-hold"))
 				let torrefactoId = tryParseId(priceHolder)
 				let packsAndPrices = tryParsePacksAndPrices(priceHolder)
-				let name = div.ChildNodes.Single(n => n.Name == "div" && hasClass(n, "h3")).InnerText.Trim()
+				let name = getName(div.ChildNodes.Single(n => n.Name == "div" && hasClass(n, "h3")))
 				select new
 				{
 					Name = name,
 					TorrefactoId = torrefactoId,
-					PacksAndPrices = packsAndPrices != null ? packsAndPrices.ToArray() : null
+					PacksAndPrices = packsAndPrices?.ToArray()
 				};
 
 			var result = new List<CoffeeKind>();
@@ -57,6 +57,16 @@ namespace Torrefactor.Services
 			}
 
 			return result;
+		}
+
+		private string getName(HtmlNode headerDiv)
+		{
+			var name = headerDiv.ChildNodes.Single(n => n.Name == "span").InnerText.Trim();
+			var regionEtc = headerDiv.ChildNodes.FirstOrDefault(n => n.Name == "p")?.InnerText.Trim();
+
+			return !string.IsNullOrWhiteSpace(regionEtc)
+				? $"{name} ({regionEtc})"
+				: name;
 		}
 
 		private void applyPackIds(CoffeePack.Builder[] packsAndPrices, string[] packIds)
@@ -188,7 +198,7 @@ namespace Torrefactor.Services
 
 		private static string getFullUrl(string relativePath)
 		{
-			return string.Format("{0}/{1}", _torrefactoHostName, relativePath);
+			return $"{_torrefactoHostName}/{relativePath}";
 		}
 
 		private const string _torrefactoHostName = "https://www.torrefacto.ru";
