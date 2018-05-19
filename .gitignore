@@ -9,3 +9,4 @@ obj/
 _ReSharper*/
 packages/
 .vs/config/applicationhost.config
+.idea/
