@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -47,6 +48,65 @@ namespace Torrefactor.Controllers
 						})
 						.ToArray(),
 					IsAvailable = kind is AvailableCoffeeKind
+				});
+		}
+		
+		[HttpGet("orders")]
+		public async Task<IEnumerable> GetAllOrders()
+		{
+			//if (!User.IsAdmin(_config))
+			//	throw new UnauthorizedAccessException();
+
+			var orders = await _coffeeOrderRepository.GetAll();
+			var kinds = (await _coffeeKindRepository.GetAll()).ToDictionary(p => p.Name);
+
+			foreach (var pack in orders.SelectMany(o => o.Packs))
+			{
+				if (!kinds.TryGetValue(pack.CoffeeKindName, out var kind))
+				{
+					pack.MarkAsUnavailable();
+					continue;
+				}
+
+				if (!(kind is AvailableCoffeeKind availableCoffeeKind))
+				{
+					pack.MarkAsUnavailable();
+					continue;
+				}
+
+				pack.Refresh(availableCoffeeKind);
+			}
+
+			return orders
+				.Where(o => o.Packs.Any())
+				.Select(o => new
+				{
+					Name = o.Username,
+					Orders = o.Packs
+						.GroupBy(p => new
+						{
+							CoffeeName = p.CoffeeKindName,
+							Weight = p.Weight,
+							State = p.State
+						})
+						.Select(p => new CoffeeKindModel
+						{
+							Name = p.Key.CoffeeName,
+							Packs = new []
+							{
+								new CoffeePackModel
+								{
+									Weight = p.Key.Weight,
+									Count = p.Count()
+								}
+							}
+						}),
+					OverallState = o.Packs.Any(p => p.State == PackState.Unavailable)
+						? PackState.Unavailable
+						: o.Packs.Any(p => p.State == PackState.PriceChanged)
+							? PackState.PriceChanged 
+							: PackState.Available,
+					Price = o.Packs.Sum(_ => _.PriceWithRebate)
 				});
 		}
 

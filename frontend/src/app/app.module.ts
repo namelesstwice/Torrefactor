@@ -12,6 +12,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { TopMenuComponent } from './top-menu/top-menu.component';
 import { InviteApprovalComponent } from './invite-approval/invite-approval.component';
 import { CompleteRegistrationComponent } from './complete-registration/complete-registration.component';
+import { ManageCoffeeOrdersComponent } from './manage-coffee-orders/manage-coffee-orders.component';
 
 @NgModule({
   declarations: [
@@ -23,6 +24,7 @@ import { CompleteRegistrationComponent } from './complete-registration/complete-
     TopMenuComponent,
     InviteApprovalComponent,
     CompleteRegistrationComponent,
+    ManageCoffeeOrdersComponent,
   ],
   imports: [
     BrowserModule,

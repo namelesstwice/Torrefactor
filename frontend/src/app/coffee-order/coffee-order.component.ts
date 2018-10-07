@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CoffeeOrderService } from './coffee-order.service';
 import { CoffeeKind } from './coffee-kind';
 import { CoffeePack } from './coffee-pack';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-coffee-order',
@@ -11,6 +12,7 @@ import { CoffeePack } from './coffee-pack';
 export class CoffeeOrderComponent implements OnInit {
 
   constructor(
+    private route: ActivatedRoute,
     private coffeeOrderService: CoffeeOrderService
   ) { }
 
@@ -19,10 +21,12 @@ export class CoffeeOrderComponent implements OnInit {
   public availablePacks: CoffeePack[];
 
   ngOnInit() {
-    const coffeeKinds = this.coffeeOrderService.getCoffeeKinds();
-    this.availableCoffeeKinds = coffeeKinds.filter(k => k.isAvailable);
-    this.unavailableCoffeeKinds = coffeeKinds.filter(k => !k.isAvailable);
-    this.availablePacks = coffeeKinds[0].packs;
+    this.route.data
+      .subscribe((data: { coffeeKinds: CoffeeKind[] }) => {
+        this.availableCoffeeKinds = data.coffeeKinds.filter(k => k.isAvailable);
+        this.unavailableCoffeeKinds = data.coffeeKinds.filter(k => !k.isAvailable);
+        this.availablePacks = data.coffeeKinds[0].packs;
+      });
   }
 
   addPack(coffeePack: CoffeePack) {

@@ -4,6 +4,11 @@ namespace Torrefactor.Models
 {
 	public class Config
 	{
+		public Config()
+		{
+			AdminNames = new List<string>();
+		}
+
 		public string TorrefactoLogin { get; set; }
 		public string TorrefactoPassword { get; set; }
 		public List<string> AdminNames { get; set; }

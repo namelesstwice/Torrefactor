@@ -6,18 +6,18 @@
     <th *ngFor="let pack of availablePacks">Pack {{ pack.weight }} g</th>
   </tr>
   </thead>
-  <tbody data-bind="foreach: availableCoffeeKinds">
-  <tr *ngFor="let coffee of availableCoffeeKinds" [class.success]="isOrdered(coffee)">
-    <td>{{ coffee.name}}</td>
-    <td *ngFor="let pack of coffee.packs">
-      <span> {{ pack.count }}</span>&nbsp;
-      <div class="btn-group btn-group-sm" role="group" aria-label="Coffee actions">
-        <button type="button" class="btn btn-outline-primary" (click)="addPack(pack)">+</button>
-        <button type="button" class="btn btn-outline-primary" (click)="removePack(pack)">-</button>
-      </div>
-      &nbsp;&times;&nbsp;{{ pack.price }}р
-    </td>
-  </tr>
+  <tbody>
+    <tr *ngFor="let coffee of availableCoffeeKinds" [class.success]="isOrdered(coffee)">
+      <td>{{ coffee.name}}</td>
+      <td *ngFor="let pack of coffee.packs">
+        <span> {{ pack.count }}</span>&nbsp;
+        <div class="btn-group btn-group-sm" role="group" aria-label="Coffee actions">
+          <button type="button" class="btn btn-outline-primary" (click)="addPack(pack)">+</button>
+          <button type="button" class="btn btn-outline-primary" (click)="removePack(pack)">-</button>
+        </div>
+        &nbsp;&times;&nbsp;{{ pack.price }}р
+      </td>
+    </tr>
   </tbody>
 </table>
 
