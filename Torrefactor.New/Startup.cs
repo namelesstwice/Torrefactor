@@ -1,14 +1,17 @@
 ﻿using System.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Driver;
 using Torrefactor.DAL;
 using Torrefactor.Models;
 using Torrefactor.Services;
+using IdentityRole = Microsoft.AspNetCore.Identity.MongoDB.IdentityRole;
+using IdentityUser = Microsoft.AspNetCore.Identity.MongoDB.IdentityUser;
 
-namespace Torrefactor.New
+namespace Torrefactor
 {
     public class Startup
     {
@@ -23,9 +26,34 @@ namespace Torrefactor.New
             var config = builder.Build().Get<Config>();
 
             services.AddSingleton(config);
+            services.AddSingleton(new MongoClient(config.MongodbConnectionString).GetDatabase(config.DatabaseName));
             services.AddSingleton<CoffeeKindRepository>();
             services.AddSingleton<CoffeeOrderRepository>();
+            services.AddSingleton<InviteRepository>();
             services.AddSingleton<TorrefactoClient>();
+
+            services.AddDefaultIdentity<IdentityUser>()
+                .AddRoles<IdentityRole>()
+                .RegisterMongoStores(
+                    provider => provider.GetService<IMongoDatabase>().GetCollection<IdentityUser>("users"),
+                    provider => provider.GetService<IMongoDatabase>().GetCollection<IdentityRole>("roles"));
+
+            services.Configure<IdentityOptions>(options =>
+            {
+                options.User.RequireUniqueEmail = true;
+                
+                options.Password.RequiredLength = 1;
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequiredUniqueChars = 0;
+                options.Password.RequireNonAlphanumeric = false;
+            });
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.Cookie.HttpOnly = true;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -35,8 +63,15 @@ namespace Torrefactor.New
             {
                 app.UseDeveloperExceptionPage();
             }
-
-            app.Run(async (context) => { await context.Response.WriteAsync("Hello World!"); });
+            else
+            {
+                app.UseHttpsRedirection();
+            }
+            
+            app.UseStaticFiles();
+            app.UseCookiePolicy();
+            app.UseAuthentication();
+            app.UseMvc();
         }
     }
 }

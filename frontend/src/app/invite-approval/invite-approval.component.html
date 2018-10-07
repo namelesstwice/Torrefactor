@@ -1,0 +1,22 @@
+<h5>Invite requests:</h5>
+<table class="table">
+  <thead>
+  <tr>
+    <th>#</th>
+    <th>Email</th>
+    <th>Name</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let invite of invites">
+    <td>
+      <div class="btn-group btn-group-sm" role="group" aria-label="Invite actions">
+        <button type="button" class="btn btn-outline-success" (click)="accept(invite)">Accept</button>
+        <button type="button" class="btn btn-outline-danger" (click)="decline(invite)">Decline</button>
+      </div>
+    </td>
+    <td>{{ invite.email }}</td>
+    <td>{{ invite.name }}</td>
+  </tr>
+  </tbody>
+</table>

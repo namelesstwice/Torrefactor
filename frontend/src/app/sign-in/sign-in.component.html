@@ -1,0 +1,42 @@
+<div class="row">
+  <div class="col">
+    <form (ngSubmit)="signIn()" #f="ngForm">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="text" class="form-control" id="email"
+               required
+               email
+               [(ngModel)]="email"
+               name="email"
+               #fEmail="ngModel">
+        <div *ngIf="fEmail.invalid && (fEmail.dirty || fEmail.touched)" class="alert alert-danger">
+          <div *ngIf="fEmail.errors.required">Email is required</div>
+          <div *ngIf="fEmail.errors.email">Email must be a valid email address</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" class="form-control" id="password"
+               required [(ngModel)]="password"
+               name="password"
+               #fPassword="ngModel">
+        <div *ngIf="fPassword.invalid && (fPassword.dirty || fPassword.touched)"
+             class="alert alert-danger">
+          Password is required
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-success" [disabled]="!f.form.valid">Sign in</button>
+    </form>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col">
+    <div class="alert alert-primary" role="alert">
+      Don't have an account? You can <a href="#" class="alert-link" routerLink="/request-invite">request invite</a>.
+    </div>
+  </div>
+</div>
+

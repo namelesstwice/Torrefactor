@@ -1,0 +1,17 @@
+<h1>Enter password to complete registration</h1>
+
+<form (ngSubmit)="register()" #f="ngForm">
+  <div class="form-group">
+    <label for="password">Password</label>
+    <input type="password" class="form-control" id="password"
+           required
+           [(ngModel)]="password"
+           name="email"
+           #fPassword="ngModel">
+    <div *ngIf="fPassword.invalid && (fPassword.dirty || fPassword.touched)" class="alert alert-danger">
+      Password is required
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-success" [disabled]="!f.form.valid">Register</button>
+</form>
