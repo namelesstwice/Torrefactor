@@ -32,6 +32,15 @@
   </div>
 </div>
 
+
+<div class="row" *ngIf="isAuthFailed">
+  <div class="col">
+    <div class="alert alert-danger" role="alert">
+      Invalid email or password
+    </div>
+  </div>
+</div>
+
 <div class="row">
   <div class="col">
     <div class="alert alert-primary" role="alert">
@@ -39,4 +48,5 @@
     </div>
   </div>
 </div>
+
 

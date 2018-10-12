@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
+import {UserService} from '../auth/user.service';
 
 @Component({
   selector: 'app-top-menu',
@@ -9,10 +10,18 @@ import { AuthService } from '../auth/auth.service';
 export class TopMenuComponent implements OnInit {
 
   constructor(
-    private authService: AuthService
+    private authService: AuthService,
+    private userService: UserService,
   ) { }
 
+  public isAuthenticated = false;
+  public isAdmin = false;
+
   ngOnInit() {
+    this.userService.userObservable.subscribe((user) => {
+      this.isAuthenticated = user != null;
+      this.isAdmin = this.isAuthenticated && user.isAdmin;
+    });
   }
 
   async signOut() {

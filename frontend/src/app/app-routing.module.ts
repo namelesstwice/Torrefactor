@@ -14,14 +14,21 @@ import { CompleteRegistrationComponent } from './complete-registration/complete-
 import { ManageCoffeeOrdersComponent } from './manage-coffee-orders/manage-coffee-orders.component';
 
 const routes: Routes = [
-  { path: 'coffee-order', component: CoffeeOrderComponent, canActivate: [AuthGuard], resolve: { coffeeKinds: CoffeeOrderService } },
-  { path: 'manage-coffee-orders', component: ManageCoffeeOrdersComponent, canActivate: [AuthGuard]},
-  { path: 'sign-in', component: SignInComponent },
-  { path: 'request-invite', component: RequestInviteComponent },
-  { path: 'invite-approval', component: InviteApprovalComponent, canActivate: [AuthGuard], resolve: { invites: AuthService } },
-  { path: 'complete-registration', component: CompleteRegistrationComponent },
-  { path: '', redirectTo: '/coffee-order', pathMatch: 'full' },
-  { path: '**', component: PageNotFoundComponent },
+  { path: '', children: [
+    { path: 'sign-in', component: SignInComponent },
+    { path: 'request-invite', component: RequestInviteComponent },
+    { path: 'complete-registration', component: CompleteRegistrationComponent },
+    { path: 'coffee-order', canActivate: [AuthGuard], children: [
+        { path: '', component: CoffeeOrderComponent, resolve: { coffeeKinds: CoffeeOrderService } },
+      ] },
+    { path: 'admin', canActivate: [AuthGuard], children: [
+        { path: 'manage-coffee-orders', component: ManageCoffeeOrdersComponent, canActivate: [AuthGuard]},
+        { path: 'invite-approval', component: InviteApprovalComponent, canActivate: [AuthGuard], resolve: { invites: AuthService } },
+      ]
+    },
+    { path: '', redirectTo: '/coffee-order', pathMatch: 'full' },
+    { path: '**', component: PageNotFoundComponent },
+  ]},
 ];
 
 @NgModule({

@@ -54,8 +54,8 @@ namespace Torrefactor.Controllers
 		[HttpGet("orders")]
 		public async Task<IEnumerable> GetAllOrders()
 		{
-			//if (!User.IsAdmin(_config))
-			//	throw new UnauthorizedAccessException();
+			if (!User.IsAdmin(_config))
+				throw new UnauthorizedAccessException();
 
 			var orders = await _coffeeOrderRepository.GetAll();
 			var kinds = (await _coffeeKindRepository.GetAll()).ToDictionary(p => p.Name);

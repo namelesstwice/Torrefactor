@@ -9,7 +9,9 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using Torrefactor.DAL;
+using Torrefactor.Models;
 using Torrefactor.Models.Auth;
+using Torrefactor.Services;
 using IdentityUser = Microsoft.AspNetCore.Identity.MongoDB.IdentityUser;
 
 namespace Torrefactor.Controllers
@@ -17,22 +19,23 @@ namespace Torrefactor.Controllers
 	[Route("api/auth")]
 	public class AuthController : Controller
 	{
-		public AuthController(SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager, InviteRepository inviteRepository, IEmailSender emailSender)
+		public AuthController(SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager, InviteRepository inviteRepository, IEmailSender emailSender, Config config)
 		{
 			_signInManager = signInManager;
 			_userManager = userManager;
 			_inviteRepository = inviteRepository;
 			_emailSender = emailSender;
+			_config = config;
 		}
 
 		[Route("user")]
 		[HttpGet]
-		public object GetCurrentUser()
+		public UserModel GetCurrentUser()
 		{
-			return new
-			{
-				Name = User.Identity.Name
-			};
+			if (!User.Identity.IsAuthenticated)
+				return null;
+
+			return new UserModel(User.IsAdmin(_config), User.Identity.Name);
 		}
 
 		[Route("sign-in")]
@@ -122,5 +125,6 @@ namespace Torrefactor.Controllers
 		private readonly InviteRepository _inviteRepository;
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly SignInManager<IdentityUser> _signInManager;
+		private readonly Config _config;
 	}
 }

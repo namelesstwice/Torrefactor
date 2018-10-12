@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {AuthService} from '../auth/auth.service';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-sign-in',
@@ -10,8 +11,10 @@ export class SignInComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
+    private router: Router,
   ) { }
 
+  public isAuthFailed: boolean;
   public email: string;
   public password: string;
 
@@ -19,6 +22,9 @@ export class SignInComponent implements OnInit {
   }
 
   async signIn() {
-    await this.authService.signIn(this.email, this.password);
+    this.isAuthFailed = false;
+    if (! await this.authService.signIn(this.email, this.password)) {
+      this.isAuthFailed = true;
+    }
   }
 }

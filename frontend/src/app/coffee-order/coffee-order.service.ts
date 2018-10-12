@@ -21,6 +21,26 @@ export class CoffeeOrderService implements Resolve<CoffeeKind[]> {
     return await this.http.get<CoffeeOrder[]>('/api/coffee/orders').toPromise();
   }
 
+  public async syncCoffeeKinds() {
+    return await this.http.post('/api/coffee/reload', {}).toPromise();
+  }
+
+  public async sendToTorrefacto() {
+    return await this.http.post('/api/coffee/send', {}).toPromise();
+  }
+
+  public async deleteAllOrders() {
+    return await this.http.post('/api/coffee/clear', {}).toPromise();
+  }
+
+  public async addPack(coffee: string, weight: number) {
+    return await this.http.post(`/api/coffee/add?coffeeName=${coffee}&weight=${weight}`, {}).toPromise();
+  }
+
+  public async removePack(coffee: string, weight: number) {
+    return await this.http.post(`/api/coffee/remove?coffeeName=${coffee}&weight=${weight}`, {}).toPromise();
+  }
+
   resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
     return this.getCoffeeKinds();
   }

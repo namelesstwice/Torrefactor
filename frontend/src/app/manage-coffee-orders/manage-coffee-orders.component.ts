@@ -20,15 +20,30 @@ export class ManageCoffeeOrdersComponent implements OnInit {
     this.orders = await this.coffeeOrderService.getCoffeeOrders();
   }
 
-  reload() {
-
+  async reload() {
+    try {
+      this.isLoading = true;
+      await this.coffeeOrderService.syncCoffeeKinds();
+    } finally {
+      this.isLoading = false;
+    }
   }
 
-  upload() {
-
+  async upload() {
+    try {
+      this.isLoading = true;
+      await this.coffeeOrderService.sendToTorrefacto();
+    } finally {
+      this.isLoading = false;
+    }
   }
 
-  clear() {
-
+  async clear() {
+    try {
+      this.isLoading = true;
+      await this.coffeeOrderService.deleteAllOrders();
+    } finally {
+      this.isLoading = false;
+    }
   }
 }

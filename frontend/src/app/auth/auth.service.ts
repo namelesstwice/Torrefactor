@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Resolve, Router, RouterStateSnapshot } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Invite } from './invite';
+import { UserService } from './user.service';
 
 @Injectable({
   providedIn: 'root',
@@ -9,26 +10,25 @@ import { Invite } from './invite';
 export class AuthService implements Resolve<Invite[]> {
   constructor(
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private userService: UserService,
   ) {}
 
-  private isLoggedIn: boolean = null;
   redirectUrl: string;
 
   async signIn(email: string, password: string) {
-    this.isLoggedIn = true;
-    await (this.http.post('/api/auth/sign-in', { email: email, password: password}).toPromise());
-    await this.router.navigate([this.redirectUrl || '/']);
-  }
-
-  async isAuthenticated() {
-    if (this.isLoggedIn !== null) {
-      return this.isLoggedIn;
+    const authResult = await (this.http.post('/api/auth/sign-in', { email: email, password: password}).toPromise()) as any;
+    if (!authResult.success) {
+      return false;
     }
 
-    const authResult = (await (this.http.get('/api/auth/user')).toPromise()) as any;
-    this.isLoggedIn = authResult.name !== null;
-    return this.isLoggedIn;
+    await this.userService.loadCurrentUserIfNeeded(true);
+    await this.router.navigate([this.redirectUrl || '/']);
+    return true;
+  }
+
+  get currentUser() {
+    return this.userService.currentUser;
   }
 
   async requestInvite(email: string, name: string) {
@@ -42,7 +42,7 @@ export class AuthService implements Resolve<Invite[]> {
 
   async signOut() {
     await this.http.post('/api/auth/sign-out', {}).toPromise();
-    this.isLoggedIn = false;
+    this.userService.unsetCurrentUser();
     await this.router.navigate(['/sign-in']);
   }
 

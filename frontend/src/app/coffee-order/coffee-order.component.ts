@@ -29,16 +29,18 @@ export class CoffeeOrderComponent implements OnInit {
       });
   }
 
-  addPack(coffeePack: CoffeePack) {
-    ++coffeePack.count;
+  async addPack(coffee: CoffeeKind, pack: CoffeePack) {
+    await this.coffeeOrderService.addPack(coffee.name, pack.weight);
+    ++pack.count;
   }
 
-  removePack(coffeePack: CoffeePack) {
-    if (coffeePack.count === 0) {
+  async removePack(coffee: CoffeeKind, pack: CoffeePack) {
+    if (pack.count === 0) {
       return;
     }
 
-    --coffeePack.count;
+    await this.coffeeOrderService.removePack(coffee.name, pack.weight);
+    --pack.count;
   }
 
   isOrdered(coffee: CoffeeKind) {

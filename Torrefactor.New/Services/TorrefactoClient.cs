@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
+using Newtonsoft.Json.Linq;
 using Torrefactor.Models;
+using Torrefactor.Utils;
 
 namespace Torrefactor.Services
 {
@@ -144,20 +147,24 @@ namespace Torrefactor.Services
 
 			return _client.UploadValuesTaskAsync(getFullUrl("/ajax.php"), data);
 		}
-
+		
 		private static async Task<IEnumerable<string>> getPackIds(string coffeKindId)
 		{
 			var request = WebRequest.CreateHttp(
-				new Uri(String.Format(getFullUrl("ajax.php?id={0}&type=roasted"), coffeKindId)));
-			var response = await request.GetResponseAsync();
+				new Uri(getFullUrl($"include/ajax.basket.php?id={coffeKindId}&type=roasted&action=getProductPopup")));
+			var responseString = await request.GetResponseStirngAsync();
 
-			var htmlDoc = new HtmlDocument();
-			htmlDoc.Load(response.GetResponseStream(), Encoding.UTF8);
+			var html = JObject.Parse(responseString).Value<string>("response");
+			using (var stringReader = new StringReader(html))
+			{
+				var htmlDoc = new HtmlDocument();
+				htmlDoc.Load(stringReader);
 
-			return htmlDoc.DocumentNode.Descendants("select")
-				.Single(_ => hasName(_, "id_0"))
-				.Descendants("option")
-				.Select(n => n.Attributes["value"].Value);
+				return htmlDoc.DocumentNode.Descendants("select")
+					.Single(_ => hasName(_, "roasted-data"))
+					.Descendants("option")
+					.Select(n => n.Attributes["value"].Value);
+			}
 		}
 
 		private static IEnumerable<CoffeePack.Builder> tryParsePacksAndPrices(HtmlNode priceHolder)

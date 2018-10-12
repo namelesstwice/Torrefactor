@@ -12,8 +12,8 @@
       <td *ngFor="let pack of coffee.packs">
         <span> {{ pack.count }}</span>&nbsp;
         <div class="btn-group btn-group-sm" role="group" aria-label="Coffee actions">
-          <button type="button" class="btn btn-outline-primary" (click)="addPack(pack)">+</button>
-          <button type="button" class="btn btn-outline-primary" (click)="removePack(pack)">-</button>
+          <button type="button" class="btn btn-outline-primary" (click)="addPack(coffee, pack)">+</button>
+          <button type="button" class="btn btn-outline-primary" (click)="removePack(coffee, pack)">-</button>
         </div>
         &nbsp;&times;&nbsp;{{ pack.price }}р
       </td>
