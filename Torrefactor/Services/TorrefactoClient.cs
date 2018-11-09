@@ -181,7 +181,7 @@ namespace Torrefactor.Services
 						n.ChildNodes.Single(_ => hasClass(_, "weight")).InnerText.Replace(" г", "")),
 
 					price: int.Parse(
-						n.ChildNodes.Single(_ => hasClass(_, "price")).InnerText.Replace("&nbsp;&#8399;", ""))
+						n.ChildNodes.Single(_ => hasClass(_, "price")).Attributes["data-price"].Value)
 				));
 		}
 
