@@ -28,7 +28,7 @@ namespace Torrefactor.Services
 			return CoffeeListPageParser.Parse(response.GetResponseStream());
 		}
 
-		public async Task Authentificate()
+		public async Task Authenticate()
 		{
 			await _client.DownloadStringTaskAsync(getFullUrl(""));
 			await _client.UploadValuesTaskAsync(getFullUrl("ajaxa.php"), new NameValueCollection

@@ -125,7 +125,7 @@ namespace Torrefactor.Controllers
 				.OfType<AvailableCoffeeKind>()
 				.ToDictionary(_ => _.Name);
 
-			await _torrefactoClient.Authentificate();
+			await _torrefactoClient.Authenticate();
 			await _torrefactoClient.CleanupBasket();
 
 			foreach (var order in userOrders)
