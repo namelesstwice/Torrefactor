@@ -208,6 +208,7 @@
     <Compile Include="Models\Config.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\AuthExtensions.cs" />
+    <Compile Include="Services\CoffeeListPageParser.cs" />
     <Compile Include="Services\CookieAwareWebClient.cs">
       <SubType>Component</SubType>
     </Compile>

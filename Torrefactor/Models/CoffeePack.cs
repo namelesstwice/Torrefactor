@@ -121,7 +121,7 @@ namespace Torrefactor.Models
 				if (string.IsNullOrEmpty(res.TorrefactoId))
 					throw new InvalidOperationException("Torrefacto ID can't be an empty string");
 
-				if (res.Weight <= 0)
+				if (res.Weight < 0)
 					throw new InvalidOperationException("Weight must be positive");
 
 				if (res.Price <= 0)
