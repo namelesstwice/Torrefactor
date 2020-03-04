@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using MongoDB.Driver;
 using Torrefactor.DAL;
 using Torrefactor.Models;
@@ -54,6 +55,11 @@ namespace Torrefactor
             {
                 options.Cookie.HttpOnly = true;
             });
+
+            IFileProvider physicalProvider = new PhysicalFileProvider(Directory.GetCurrentDirectory());
+
+            services.AddSingleton<IFileProvider>(physicalProvider);
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -71,7 +77,16 @@ namespace Torrefactor
             app.UseStaticFiles();
             app.UseCookiePolicy();
             app.UseAuthentication();
-            app.UseMvc();
+            env.WebRootFileProvider = new PhysicalFileProvider(Directory.GetCurrentDirectory());
+
+            app.UseMvc(routes =>
+            {
+                routes.MapSpaFallbackRoute(
+                    "spa-fallback",
+                    new { controller = "Spa", action = "Index"});
+            });
+
+
         }
     }
 }
