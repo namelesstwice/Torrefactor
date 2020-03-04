@@ -36,11 +36,6 @@ namespace Torrefactor.Models
 
 		public int Price { get; private set; }
 
-		public int PriceWithRebate
-		{
-			get { return (int) Math.Round(Price*0.85); }
-		}
-
 		public string CoffeeKindName { get; private set; }
 
 		public string TorrefactoId { get; private set; }

@@ -84,7 +84,7 @@ namespace Torrefactor.Controllers
 						: o.Packs.Any(p => p.State == PackState.PriceChanged)
 							? PackState.PriceChanged 
 							: PackState.Available,
-					Price = o.Packs.Sum(_ => _.PriceWithRebate)
+					Price = o.Packs.Sum(_ => _.Price)
 				});
 		}
 

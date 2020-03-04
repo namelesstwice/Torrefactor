@@ -41,7 +41,7 @@ namespace Torrefactor.Controllers
 						? ((AvailableCoffeeKind) kind).AvailablePacks
 							.Select(pack => new CoffeePackModel
 							{
-								Price = pack.PriceWithRebate,
+								Price = pack.Price,
 								Weight = pack.Weight,
 								Count = userOrders.GetCount(kind, pack.Weight)
 							})

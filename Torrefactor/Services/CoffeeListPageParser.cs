@@ -20,9 +20,9 @@ namespace Torrefactor.Services
 				where hasAttribute(div, "data-entity", "item")
 				let torrefactoId = int.Parse(div.Attributes["data-item-id"].Value)
 				let packs = tryParsePacks(div)
-				let mainName = div.Descendants().Single(_ => hasClass(_, "card-title")).InnerText
-				let suffix = div.Descendants().SingleOrDefault(_ => hasClass(_, "text-caps"))?.InnerText
-				let name = $"{mainName} {suffix}".Trim()
+				let name = div.Descendants()
+					.Single(_ => hasAttribute(_, "data-prop-name"))
+					.Attributes["data-prop-name"].Value
 				let isNotAvailable = div.Descendants().Any(_ => hasClass(_, "button-disabled"))
 				select isNotAvailable
 					? new CoffeeKind(name)
@@ -33,21 +33,24 @@ namespace Torrefactor.Services
 
 		private static IEnumerable<CoffeePack.Builder> tryParsePacks(HtmlNode div)
 		{
-			return div?.Descendants()
-				.Single(_ => hasClass(_, "card-info"))
-				.Descendants()
-				.Where(_ => hasClass(_, "flex-auto"))
-				.Select(p =>
-				{
-					var weightHolder = p.ChildNodes.Single(_ => hasClass(_, "mb-5"));
-					var weight = int.Parse(weightHolder.InnerText.Trim('г', ' '));
+			var priceHolder = div?.Descendants()
+				.SingleOrDefault(_ => hasClass(_, "current-price"));
 
-					var priceHolder = p.Descendants("input").Single();
-					var id = priceHolder.Attributes["value"].Value;
-					var price = int.Parse(priceHolder.Attributes["data-price"].Value);
+			if (priceHolder == null)
+				yield break;
 
-					return CoffeePack.Create(weight, price).SetId(id);
-				});
+			var packSizeHolders = div.Descendants()
+				.Single(_ => hasClass(_, "offer-type"))
+				.Descendants("option");
+
+			foreach (var packSizeHolder in packSizeHolders)
+			{
+				var price = int.Parse(priceHolder.InnerText.Trim(' ', '₽'));
+				var packSize = int.Parse(packSizeHolder.InnerText.Replace('г', ' ').Trim());
+				var id = packSizeHolder.Attributes["value"].Value;
+
+				yield return CoffeePack.Create(packSize, price).SetId(id);
+			}
 		}
 
 		private static bool hasClass(HtmlNode node, string className)
@@ -55,9 +58,9 @@ namespace Torrefactor.Services
 			return node.Attributes.Any(a => a.Name == "class" && a.Value.Split(' ').Any(_ => _ == className));
 		}
 
-		private static bool hasAttribute(HtmlNode node, string name, string value)
+		private static bool hasAttribute(HtmlNode node, string name, string value = null)
 		{
-			return node.Attributes.Any(a => a.Name == name && a.Value == value);
+			return node.Attributes.Any(a => a.Name == name && (value == null || a.Value == value));
 		}
 	}
 }
