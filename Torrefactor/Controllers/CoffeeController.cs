@@ -42,7 +42,7 @@ namespace Torrefactor.Controllers
 					Packs = (kind as AvailableCoffeeKind)?.AvailablePacks
 						.Select(pack => new CoffeePackModel
 						{
-							Price = pack.PriceWithRebate,
+							Price = pack.Price,
 							Weight = pack.Weight,
 							Count = userOrders.GetCount(kind, pack.Weight)
 						})
@@ -106,7 +106,7 @@ namespace Torrefactor.Controllers
 						: o.Packs.Any(p => p.State == PackState.PriceChanged)
 							? PackState.PriceChanged 
 							: PackState.Available,
-					Price = o.Packs.Sum(_ => _.PriceWithRebate)
+					Price = o.Packs.Sum(_ => _.Price)
 				});
 		}
 

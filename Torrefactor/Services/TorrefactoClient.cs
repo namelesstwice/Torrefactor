@@ -25,7 +25,6 @@ namespace Torrefactor.Services
 		{
 			var request = WebRequest.CreateHttp(new Uri(getFullUrl("catalog/roasted/")));
 			var response = await request.GetResponseAsync();
-
 			return CoffeeListPageParser.Parse(response.GetResponseStream());
 		}
 

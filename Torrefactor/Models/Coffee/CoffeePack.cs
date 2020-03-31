@@ -36,11 +36,6 @@ namespace Torrefactor.Models
 
 		public int Price { get; private set; }
 
-		public int PriceWithRebate
-		{
-			get { return (int) Math.Round(Price*0.85); }
-		}
-
 		public string CoffeeKindName { get; private set; }
 
 		public string TorrefactoId { get; private set; }
@@ -121,7 +116,7 @@ namespace Torrefactor.Models
 				if (string.IsNullOrEmpty(res.TorrefactoId))
 					throw new InvalidOperationException("Torrefacto ID can't be an empty string");
 
-				if (res.Weight <= 0)
+				if (res.Weight < 0)
 					throw new InvalidOperationException("Weight must be positive");
 
 				if (res.Price <= 0)
