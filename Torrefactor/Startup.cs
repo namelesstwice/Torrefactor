@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Hosting;
 using MongoDB.Driver;
 using Torrefactor.DAL;
 using Torrefactor.Models;
@@ -33,7 +34,8 @@ namespace Torrefactor
             services.AddSingleton<InviteRepository>();
             services.AddSingleton<TorrefactoClient>();
 
-            services.AddDefaultIdentity<IdentityUser>()
+            services
+                .AddDefaultIdentity<IdentityUser>()
                 .AddRoles<IdentityRole>()
                 .RegisterMongoStores(
                     provider => provider.GetService<IMongoDatabase>().GetCollection<IdentityUser>("users"),
@@ -63,7 +65,7 @@ namespace Torrefactor
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -79,14 +81,12 @@ namespace Torrefactor
             app.UseAuthentication();
             env.WebRootFileProvider = new PhysicalFileProvider(Directory.GetCurrentDirectory());
 
-            app.UseMvc(routes =>
+            app.UseRouting();
+            app.UseEndpoints(endpoints =>
             {
-                routes.MapSpaFallbackRoute(
-                    "spa-fallback",
-                    new { controller = "Spa", action = "Index"});
+                endpoints.MapControllers();
+                endpoints.MapFallbackToController("Index", "Spa");
             });
-
-
         }
     }
 }

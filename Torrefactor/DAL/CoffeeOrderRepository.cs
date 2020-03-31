@@ -17,7 +17,7 @@ namespace Torrefactor.DAL
 
 		public Task Update(CoffeeOrder userOrders)
 		{
-			return Collection.ReplaceOneAsync(_ => _.Username == userOrders.Username, userOrders, new UpdateOptions { IsUpsert = true });
+			return Collection.ReplaceOneAsync(_ => _.Username == userOrders.Username, userOrders, new ReplaceOptions { IsUpsert = true });
 		}
 	}
 }

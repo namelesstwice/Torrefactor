@@ -2,10 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using Torrefactor.DAL;
@@ -19,12 +17,11 @@ namespace Torrefactor.Controllers
 	[Route("api/auth")]
 	public class AuthController : Controller
 	{
-		public AuthController(SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager, InviteRepository inviteRepository, IEmailSender emailSender, Config config)
+		public AuthController(SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager, InviteRepository inviteRepository, Config config)
 		{
 			_signInManager = signInManager;
 			_userManager = userManager;
 			_inviteRepository = inviteRepository;
-			_emailSender = emailSender;
 			_config = config;
 		}
 
@@ -82,11 +79,6 @@ namespace Torrefactor.Controllers
 			if (isApproved)
 			{
 				invite.Approve();
-				await _emailSender.SendEmailAsync(
-					invite.Email,
-					"Welcome to Torrefactor!\n\n",
-					$"Hi, {invite.Name}! Please follow this link to complete your registration " +
-					$"{this.Request.Scheme}://{this.Request.Host}/complete-registration?token={HttpUtility.UrlEncode(invite.Token)}");
 			}
 			else
 			{
@@ -120,8 +112,7 @@ namespace Torrefactor.Controllers
 			
 			await _signInManager.PasswordSignInAsync(invite.Email, model.Password, true, false);
 		}
-
-		private readonly IEmailSender _emailSender;
+		
 		private readonly InviteRepository _inviteRepository;
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly SignInManager<IdentityUser> _signInManager;

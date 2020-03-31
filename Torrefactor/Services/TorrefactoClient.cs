@@ -2,15 +2,9 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
-using HtmlAgilityPack;
-using Newtonsoft.Json.Linq;
 using Torrefactor.Models;
-using Torrefactor.Utils;
 
 namespace Torrefactor.Services
 {
