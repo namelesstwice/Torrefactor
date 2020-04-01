@@ -47,9 +47,6 @@ namespace Torrefactor
             }, mongoIdentityOptions => {
                 mongoIdentityOptions.ConnectionString = config.MongodbConnectionString;
             });
-            
-            services.TryAddScoped<SignInManager<ApplicationUser>>();
-            services.TryAddScoped<UserManager<ApplicationUser>>();
 
             services.ConfigureApplicationCookie(options =>
             {
