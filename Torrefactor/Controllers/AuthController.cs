@@ -10,14 +10,13 @@ using Torrefactor.DAL;
 using Torrefactor.Models;
 using Torrefactor.Models.Auth;
 using Torrefactor.Services;
-using IdentityUser = Microsoft.AspNetCore.Identity.MongoDB.IdentityUser;
 
 namespace Torrefactor.Controllers
 {
 	[Route("api/auth")]
 	public class AuthController : Controller
 	{
-		public AuthController(SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager, InviteRepository inviteRepository, Config config)
+		public AuthController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, InviteRepository inviteRepository, Config config)
 		{
 			_signInManager = signInManager;
 			_userManager = userManager;
@@ -100,7 +99,7 @@ namespace Torrefactor.Controllers
 				throw new InvalidOperationException($"Invite {invite.Id} is not approved");
 
 			var result = await _userManager.CreateAsync(
-				new IdentityUser {UserName = invite.Email, Email = invite.Email},
+				new ApplicationUser {UserName = invite.Email, Email = invite.Email},
 				model.Password);
 			
 			if (!result.Succeeded)
@@ -114,8 +113,8 @@ namespace Torrefactor.Controllers
 		}
 		
 		private readonly InviteRepository _inviteRepository;
-		private readonly UserManager<IdentityUser> _userManager;
-		private readonly SignInManager<IdentityUser> _signInManager;
+		private readonly UserManager<ApplicationUser> _userManager;
+		private readonly SignInManager<ApplicationUser> _signInManager;
 		private readonly Config _config;
 	}
 }

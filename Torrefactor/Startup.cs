@@ -1,17 +1,18 @@
 ﻿using System.IO;
+using AspNetCore.Identity.Mongo;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using MongoDB.Driver;
 using Torrefactor.DAL;
 using Torrefactor.Models;
+using Torrefactor.Models.Auth;
 using Torrefactor.Services;
-using IdentityRole = Microsoft.AspNetCore.Identity.MongoDB.IdentityRole;
-using IdentityUser = Microsoft.AspNetCore.Identity.MongoDB.IdentityUser;
 
 namespace Torrefactor
 {
@@ -33,25 +34,22 @@ namespace Torrefactor
             services.AddSingleton<CoffeeOrderRepository>();
             services.AddSingleton<InviteRepository>();
             services.AddSingleton<TorrefactoClient>();
-
-            services
-                .AddDefaultIdentity<IdentityUser>()
-                .AddRoles<IdentityRole>()
-                .RegisterMongoStores(
-                    provider => provider.GetService<IMongoDatabase>().GetCollection<IdentityUser>("users"),
-                    provider => provider.GetService<IMongoDatabase>().GetCollection<IdentityRole>("roles"));
-
-            services.Configure<IdentityOptions>(options =>
+            
+            services.AddIdentityMongoDbProvider<ApplicationUser, ApplicationRole>(identityOptions =>
             {
-                options.User.RequireUniqueEmail = true;
-                
-                options.Password.RequiredLength = 1;
-                options.Password.RequireDigit = false;
-                options.Password.RequireLowercase = false;
-                options.Password.RequireUppercase = false;
-                options.Password.RequiredUniqueChars = 0;
-                options.Password.RequireNonAlphanumeric = false;
+                identityOptions.User.RequireUniqueEmail = true;
+                identityOptions.Password.RequiredLength = 1;
+                identityOptions.Password.RequireLowercase = false;
+                identityOptions.Password.RequireUppercase = false;
+                identityOptions.Password.RequireNonAlphanumeric = false;
+                identityOptions.Password.RequireDigit = false;
+                identityOptions.Password.RequiredUniqueChars = 0;
+            }, mongoIdentityOptions => {
+                mongoIdentityOptions.ConnectionString = config.MongodbConnectionString;
             });
+            
+            services.TryAddScoped<SignInManager<ApplicationUser>>();
+            services.TryAddScoped<UserManager<ApplicationUser>>();
 
             services.ConfigureApplicationCookie(options =>
             {
@@ -61,7 +59,7 @@ namespace Torrefactor
             IFileProvider physicalProvider = new PhysicalFileProvider(Directory.GetCurrentDirectory());
 
             services.AddSingleton<IFileProvider>(physicalProvider);
-
+            services.AddControllers();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
