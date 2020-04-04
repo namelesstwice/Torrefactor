@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -50,10 +51,22 @@ namespace Torrefactor.Tests.Integration
         }
 
         [Test]
+        public async Task Should_fail_if_user_try_to_register_twice()
+        {
+            var client = CreateServer().CreateAuthClient();
+            
+            await client.Register("blah@blah.com", "123", "John Doe");
+
+            Assert.ThrowsAsync<InvalidOperationException>(() => 
+                client.Register("blah@blah.com", "123", "John Doe"));
+        }
+
+        [Test]
         public async Task Should_allow_admin_to_sign_in_without_approval()
         {
             var client = CreateServer().CreateAuthClient();
 
+            // Admin email is specified in app's config
             await client.Register("admin@blah.com", "123", "The Admin");
             var signInResponse = await client.SignIn("admin@blah.com", "123");
             

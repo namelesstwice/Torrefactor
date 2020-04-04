@@ -49,7 +49,6 @@ namespace Torrefactor.Controllers
 				return new {Success = false};
 			
 			var user = await _userManager.FindByEmailAsync(model.Email);
-			
 			var token = GenerateJwtToken(user.Email, user);
 			return new
 			{
