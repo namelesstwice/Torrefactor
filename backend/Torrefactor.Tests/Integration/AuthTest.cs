@@ -78,7 +78,7 @@ namespace Torrefactor.Tests.Integration
         {
             var client = CreateServer().CreateAuthClient();
 
-            await client.Register("blah@blah.com", "123", "The Admin");
+            await client.Register("blah@blah.com", "123", "John Doe");
             await client.SignIn("blah@blah.com", "123");
             var confirmResponse = await client.ConfirmUser("123");
             
