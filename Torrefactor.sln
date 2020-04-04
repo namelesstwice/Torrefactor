@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Torrefactor", "Torrefactor\Torrefactor.csproj", "{45A1961B-8FDB-4880-B031-6A14DC490A18}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Torrefactor", "backend\Torrefactor\Torrefactor.csproj", "{3E8F23F1-E03F-47D4-A974-DC8F7AE3B575}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Torrefactor.Tests", "backend\Torrefactor.Tests\Torrefactor.Tests.csproj", "{C54B1C5C-102C-4324-B4B6-93747B1BC6AE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{45A1961B-8FDB-4880-B031-6A14DC490A18}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{45A1961B-8FDB-4880-B031-6A14DC490A18}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{45A1961B-8FDB-4880-B031-6A14DC490A18}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{45A1961B-8FDB-4880-B031-6A14DC490A18}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E8F23F1-E03F-47D4-A974-DC8F7AE3B575}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E8F23F1-E03F-47D4-A974-DC8F7AE3B575}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E8F23F1-E03F-47D4-A974-DC8F7AE3B575}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E8F23F1-E03F-47D4-A974-DC8F7AE3B575}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C54B1C5C-102C-4324-B4B6-93747B1BC6AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C54B1C5C-102C-4324-B4B6-93747B1BC6AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C54B1C5C-102C-4324-B4B6-93747B1BC6AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C54B1C5C-102C-4324-B4B6-93747B1BC6AE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

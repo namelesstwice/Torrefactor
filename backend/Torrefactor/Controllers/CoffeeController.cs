@@ -54,7 +54,7 @@ namespace Torrefactor.Controllers
 		[HttpGet("orders")]
 		public async Task<IEnumerable> GetAllOrders()
 		{
-			if (!User.IsAdmin(_config))
+			if (!User.IsAdmin())
 				throw new UnauthorizedAccessException();
 
 			var orders = await _coffeeOrderRepository.GetAll();
@@ -139,7 +139,7 @@ namespace Torrefactor.Controllers
 		[HttpPost("reload")]
 		public async Task ReloadFromTorrefacto()
 		{
-			if (!User.IsAdmin(_config))
+			if (!User.IsAdmin())
 				throw new UnauthorizedAccessException();
 
 			var coffeeKinds = (await _torrefactoClient.GetCoffeeKinds())
@@ -173,7 +173,7 @@ namespace Torrefactor.Controllers
 		[HttpPost("send")]
 		public async Task SendToTorrefacto()
 		{
-			if (!User.IsAdmin(_config))
+			if (!User.IsAdmin())
 				throw new UnauthorizedAccessException();
 
 			var userOrders = (await _coffeeOrderRepository.GetAll())
@@ -201,7 +201,7 @@ namespace Torrefactor.Controllers
 		[HttpPost("clear")]
 		public async Task ClearAllOrders()
 		{
-			if (!User.IsAdmin(_config))
+			if (!User.IsAdmin())
 				throw new UnauthorizedAccessException();
 
 			await _coffeeOrderRepository.Clean();

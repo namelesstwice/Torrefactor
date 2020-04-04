@@ -5,8 +5,11 @@ namespace Torrefactor.Models.Auth
 	[DataContract]
 	public class RegistrationModel
 	{
+		[DataMember(Name = "name")]
+		public string Name { get; set; }
+		
 		[DataMember(Name = "token")]
-		public string Token { get; set; }
+		public string Email { get; set; }
 		
 		[DataMember(Name = "password")]
 		public string Password { get; set; }

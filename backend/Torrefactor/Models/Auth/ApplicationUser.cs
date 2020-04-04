@@ -3,5 +3,8 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Torrefactor.Models.Auth
 {
-    public class ApplicationUser : MongoUser {}
+    public class ApplicationUser : MongoUser
+    {
+        public string DisplayName { get; set; }
+    }
 }

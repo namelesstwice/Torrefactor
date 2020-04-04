@@ -1,5 +1,7 @@
 ﻿using System.IO;
+using System.Text;
 using AspNetCore.Identity.Mongo;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -8,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using Torrefactor.DAL;
 using Torrefactor.Models;
@@ -24,15 +27,17 @@ namespace Torrefactor
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json");
+                .AddJsonFile("appsettings.json")
+                .AddJsonFile("appsettings.development.json", true);
 
-            var config = builder.Build().Get<Config>();
-
-            services.AddSingleton(config);
-            services.AddSingleton(new MongoClient(config.MongodbConnectionString).GetDatabase(config.DatabaseName));
+            services.AddSingleton(p => builder.Build().Get<Config>());
+            services.AddSingleton(p =>
+            {
+                var config = p.GetService<Config>();
+                return new MongoClient(config.MongodbConnectionString).GetDatabase(config.DatabaseName);
+            });
             services.AddSingleton<CoffeeKindRepository>();
             services.AddSingleton<CoffeeOrderRepository>();
-            services.AddSingleton<InviteRepository>();
             services.AddSingleton<TorrefactoClient>();
             
             services.AddIdentityMongoDbProvider<ApplicationUser, ApplicationRole>(identityOptions =>
@@ -44,13 +49,31 @@ namespace Torrefactor
                 identityOptions.Password.RequireNonAlphanumeric = false;
                 identityOptions.Password.RequireDigit = false;
                 identityOptions.Password.RequiredUniqueChars = 0;
+                identityOptions.SignIn.RequireConfirmedAccount = true;
             }, mongoIdentityOptions => {
-                mongoIdentityOptions.ConnectionString = config.MongodbConnectionString;
+                var sp = services.BuildServiceProvider();
+                var cfg = sp.GetService<Config>();
+                mongoIdentityOptions.ConnectionString = cfg.MongodbConnectionString;
             });
-
-            services.ConfigureApplicationCookie(options =>
+            
+            services.AddAuthentication(x =>
             {
-                options.Cookie.HttpOnly = true;
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(x =>
+            {
+                var sp = services.BuildServiceProvider();
+                var cfg = sp.GetService<Config>();
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(cfg.Secret)),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
             });
 
             IFileProvider physicalProvider = new PhysicalFileProvider(Directory.GetCurrentDirectory());
@@ -72,11 +95,10 @@ namespace Torrefactor
             }
             
             app.UseStaticFiles();
-            app.UseCookiePolicy();
-            app.UseAuthentication();
             env.WebRootFileProvider = new PhysicalFileProvider(Directory.GetCurrentDirectory());
-
             app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
