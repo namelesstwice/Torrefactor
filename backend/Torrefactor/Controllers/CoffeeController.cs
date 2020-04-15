@@ -52,11 +52,9 @@ namespace Torrefactor.Controllers
 		}
 		
 		[HttpGet("orders")]
+		[Authorize(Roles = "admin")]
 		public async Task<IEnumerable> GetAllOrders()
 		{
-			if (!User.IsAdmin())
-				throw new UnauthorizedAccessException();
-
 			var orders = await _coffeeOrderRepository.GetAll();
 			var kinds = (await _coffeeKindRepository.GetAll()).ToDictionary(p => p.Name);
 
@@ -137,11 +135,9 @@ namespace Torrefactor.Controllers
 		}
 
 		[HttpPost("reload")]
+		[Authorize(Roles = "admin")]
 		public async Task ReloadFromTorrefacto()
 		{
-			if (!User.IsAdmin())
-				throw new UnauthorizedAccessException();
-
 			var coffeeKinds = (await _torrefactoClient.GetCoffeeKinds())
 				.ToLookup(k => k.Name)
 				.Select(group =>
@@ -171,11 +167,9 @@ namespace Torrefactor.Controllers
 		}
 
 		[HttpPost("send")]
+		[Authorize(Roles = "admin")]
 		public async Task SendToTorrefacto()
 		{
-			if (!User.IsAdmin())
-				throw new UnauthorizedAccessException();
-
 			var userOrders = (await _coffeeOrderRepository.GetAll())
 				.SelectMany(_ => _.Packs)
 				.GroupBy(_ => new { _.CoffeeKindName, _.Weight});
@@ -199,11 +193,9 @@ namespace Torrefactor.Controllers
 		}
 
 		[HttpPost("clear")]
+		[Authorize(Roles = "admin")]
 		public async Task ClearAllOrders()
 		{
-			if (!User.IsAdmin())
-				throw new UnauthorizedAccessException();
-
 			await _coffeeOrderRepository.Clean();
 		}
 

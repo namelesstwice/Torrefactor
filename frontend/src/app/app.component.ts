@@ -1,14 +1,10 @@
-import {Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.less']
 })
-export class AppComponent implements OnInit {
-  title = 'Torrefactor';
-
-  ngOnInit(): void {
-
-  }
+export class AppComponent {
+  title = 'frontend';
 }
