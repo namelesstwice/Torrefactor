@@ -36,19 +36,26 @@ namespace Torrefactor.Controllers
 				?? new CoffeeOrder(User.Identity.Name);
 
 			return coffeeKinds.Select(kind =>
-				new CoffeeKindModel
+			{
+				var packs = (kind as AvailableCoffeeKind)?.AvailablePacks
+					.Select(pack => new CoffeePackModel
+					{
+						Price = pack.Price,
+						Weight = pack.Weight,
+						Count = userOrders.GetCount(kind, pack.Weight)
+					})
+					.OrderBy(_ => _.Weight)
+					.ToArray();
+				
+				return new CoffeeKindModel
 				{
 					Name = kind.Name,
-					Packs = (kind as AvailableCoffeeKind)?.AvailablePacks
-						.Select(pack => new CoffeePackModel
-						{
-							Price = pack.Price,
-							Weight = pack.Weight,
-							Count = userOrders.GetCount(kind, pack.Weight)
-						})
-						.ToArray(),
+					Packs = packs,
+					SmallPack = packs?.First(),
+					BigPack = packs?.Last(),
 					IsAvailable = kind is AvailableCoffeeKind
-				});
+				};
+			});
 		}
 		
 		[HttpGet("orders")]
@@ -97,7 +104,7 @@ namespace Torrefactor.Controllers
 									Weight = p.Key.Weight,
 									Count = p.Count()
 								}
-							}
+							},
 						}),
 					OverallState = o.Packs.Any(p => p.State == PackState.Unavailable)
 						? PackState.Unavailable
@@ -229,6 +236,8 @@ namespace Torrefactor.Controllers
 			public string Name { get; set; }
 			public CoffeePackModel[] Packs { get; set; }
 			public bool IsAvailable { get; set; }
+			public CoffeePackModel SmallPack { get; set; }
+			public CoffeePackModel BigPack { get; set; }
 		}
 
 		public class CoffeePackModel

@@ -1,0 +1,19 @@
+<table mat-table [dataSource]="invites">
+    <ng-container matColumnDef="name">
+        <mat-header-cell *matHeaderCellDef> Name </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{element.name}} </mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="email">
+        <mat-header-cell *matHeaderCellDef> Email </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{element.email}} </mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="actions">
+        <mat-header-cell *matHeaderCellDef> </mat-header-cell>
+        <mat-cell *matCellDef="let element"> 
+            <button mat-button (click)="accept(element)">Accept</button>
+            <button mat-button (click)="decline(element)">Decline</button>
+        </mat-cell>
+    </ng-container>
+    <mat-header-row *matHeaderRowDef="['name', 'email', 'actions']"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: ['name', 'email', 'actions'];"></mat-row>
+</table>

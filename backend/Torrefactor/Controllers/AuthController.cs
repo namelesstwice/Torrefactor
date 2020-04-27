@@ -41,20 +41,25 @@ namespace Torrefactor.Controllers
 
 		[Route("sign-in")]
 		[HttpPost]
-		public async Task<object> SignIn([FromBody] SignInModel model)
+		public async Task<ActionResult> SignIn([FromBody] SignInModel model)
 		{
 			var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, true, false);
 
 			if (!result.Succeeded)
-				return new {Success = false};
-			
+			{
+				return result.IsNotAllowed
+					? Unauthorized(new {Success = false, IsNotApproved = true})
+					: Unauthorized(new {Success = false});
+			}
+
 			var user = await _userManager.FindByEmailAsync(model.Email);
 			var token = GenerateJwtToken(user.Email, user);
-			return new
+			
+			return Ok(new
 			{
 				Success = true,
 				AccessToken = token
-			};
+			});
 		}
 		
 		[Route("sign-out")]
@@ -94,7 +99,7 @@ namespace Torrefactor.Controllers
 
 		[Route("register")]
 		[HttpPost]
-		public async Task Register([FromBody] RegistrationModel model)
+		public async Task<ActionResult> Register([FromBody] RegistrationModel model)
 		{
 			var isAdmin = AuthExtensions.IsAdminEmail(model.Email, _config);
 			
@@ -108,12 +113,16 @@ namespace Torrefactor.Controllers
 					Roles = isAdmin ? new List<string> { "admin" } : new List<string>()
 				},
 				model.Password);
-			
-			if (!result.Succeeded)
-				throw new InvalidOperationException(
-					$"Unexpected errors {string.Join(",", result.Errors.Select(e => $"{e.Code} - {e.Description}"))}");
 
-			await _signInManager.PasswordSignInAsync(model.Email, model.Password, true, false);
+			if (!result.Succeeded)
+			{
+				return BadRequest(new
+				{
+					result.Errors
+				});
+			}
+
+			return Ok();
 		}
 
 		private string GenerateJwtToken(string email, ApplicationUser user)

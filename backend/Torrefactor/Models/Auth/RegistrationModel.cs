@@ -8,7 +8,7 @@ namespace Torrefactor.Models.Auth
 		[DataMember(Name = "name")]
 		public string Name { get; set; }
 		
-		[DataMember(Name = "token")]
+		[DataMember(Name = "email")]
 		public string Email { get; set; }
 		
 		[DataMember(Name = "password")]

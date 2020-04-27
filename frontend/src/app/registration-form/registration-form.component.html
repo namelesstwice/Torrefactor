@@ -1,0 +1,33 @@
+<form (ngSubmit)="onSubmit()" #f="ngForm">
+    <mat-form-field appearance="fill">
+        <mat-label>Name</mat-label>
+        <input name="name" matInput [(ngModel)]="name" required #fName="ngModel">
+        <mat-error *ngIf="fEmail.invalid && (fEmail.dirty || fEmail.touched) && fEmail.errors.required">
+            Name is required
+        </mat-error>
+    </mat-form-field>
+    <br>
+    <mat-form-field appearance="fill">
+        <mat-label>Email</mat-label>
+        <input name="email" matInput [(ngModel)]="email" required email #fEmail="ngModel">
+        <mat-error *ngIf="fEmail.invalid && (fEmail.dirty || fEmail.touched) && fEmail.errors.email">
+            Please enter a valid email address
+        </mat-error>
+        <mat-error *ngIf="fEmail.invalid && (fEmail.dirty || fEmail.touched) && fEmail.errors.required">
+            Email is required
+        </mat-error>
+    </mat-form-field>
+    <br>
+    <mat-form-field appearance="fill">
+        <mat-label>Password</mat-label>
+        <input name="password" type="password" matInput [(ngModel)]="password" required #fPassword="ngModel">
+        <mat-error *ngIf="fPassword.invalid && (fPassword.dirty || fPassword.touched) && fPassword.errors.required">
+            Password is required
+        </mat-error>
+    </mat-form-field>
+    <br>
+    <mat-error *ngIf="serverError">
+        {{serverError}}
+    </mat-error>
+    <button mat-raised-button color="primary" type="submit" [disabled]="!f.form.valid || isSending">Register</button>
+</form>

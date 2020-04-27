@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { AuthService } from './auth-service.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -6,5 +8,21 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.less']
 })
 export class AppComponent {
-  title = 'frontend';
+  
+  constructor(
+    private auth: AuthService,
+    private router: Router) {}
+
+  public get isAdmin() {
+    return this.auth.isAuthenticated;
+  }  
+
+  public get isAuthenticated() {
+    return this.auth.isAuthenticated;
+  }  
+
+  public logout() {
+    this.auth.logout();
+    this.router.navigate(['/sign-in']);
+  }
 }

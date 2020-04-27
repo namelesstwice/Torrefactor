@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { AuthService, AuthError } from '../auth-service.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login-form',
@@ -7,9 +9,26 @@ import { Component, OnInit } from '@angular/core';
 })
 export class LoginFormComponent implements OnInit {
 
-  constructor() { }
+  constructor(
+    private auth: AuthService,
+    private router: Router) { }
 
   ngOnInit(): void {
   }
 
+  async login() {
+    try {
+      this.serverError = '';
+      await this.auth.login(this.email, this.password).toPromise();
+      this.router.navigate(['/coffee-kinds'])
+    } catch (error) {
+      if (error instanceof AuthError) {
+        this.serverError = error.errorText;
+      }
+    }
+  }
+
+  public email = '';
+  public password = '';
+  public serverError = '';
 }

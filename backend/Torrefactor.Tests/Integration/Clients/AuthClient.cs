@@ -55,7 +55,7 @@ namespace Torrefactor.Tests.Integration.Clients
 
         public async Task<ApiResponse> ConfirmUser(string id)
         {
-           return await _client.PutAsync(GetUserConfirmUrl(id, true), EmptyContent)
+            return await _client.PutAsync(GetUserConfirmUrl(id, true), EmptyContent)
                .ToApiResponse();
         }        
         

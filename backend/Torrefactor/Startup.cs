@@ -53,7 +53,8 @@ namespace Torrefactor
             }, mongoIdentityOptions => {
                 var sp = services.BuildServiceProvider();
                 var cfg = sp.GetService<Config>();
-                mongoIdentityOptions.ConnectionString = cfg.MongodbConnectionString;
+                mongoIdentityOptions.ConnectionString = $"{cfg.MongodbConnectionString}/{cfg.DatabaseName}";
+                mongoIdentityOptions.UsersCollection = "users";
             });
             
             services.AddAuthentication(x =>
@@ -91,7 +92,7 @@ namespace Torrefactor
             }
             else
             {
-                app.UseHttpsRedirection();
+                //app.UseHttpsRedirection();
             }
             
             app.UseStaticFiles();
@@ -102,7 +103,7 @@ namespace Torrefactor
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapFallbackToController("Index", "Spa");
+                //endpoints.MapFallbackToController("Index", "Spa");
             });
         }
     }

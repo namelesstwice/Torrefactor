@@ -1,0 +1,26 @@
+<button mat-stroked-button color="primary" (click)="reloadKinds()" [disabled]="isLoading">Reload coffee kinds</button>
+<button mat-stroked-button color="primary" (click)="removeAll()" [disabled]="isLoading">Remove all orders</button>
+<button mat-stroked-button color="primary" (click)="push()" [disabled]="isLoading">Push orders</button>
+
+<table mat-table [dataSource]="orders">
+    <ng-container matColumnDef="name">
+        <mat-header-cell *matHeaderCellDef> Name </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{element.name}} </mat-cell>
+        <mat-footer-cell *matFooterCellDef> Total </mat-footer-cell>
+    </ng-container>
+    <ng-container matColumnDef="packs">
+        <mat-header-cell *matHeaderCellDef> Packs </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{ format(element.orders) }} </mat-cell>
+        <mat-footer-cell *matFooterCellDef></mat-footer-cell>
+    </ng-container>
+    <ng-container matColumnDef="price">
+        <mat-header-cell *matHeaderCellDef> Price </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{ element.price }} RUR</mat-cell>
+        <mat-footer-cell *matFooterCellDef> {{ totalPrice }} RUR</mat-footer-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="['name', 'packs', 'price']"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: ['name', 'packs', 'price'];"></mat-row>
+    <mat-footer-row *matFooterRowDef="['name', 'packs', 'price']"></mat-footer-row>
+
+</table>
