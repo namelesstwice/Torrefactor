@@ -44,6 +44,17 @@ spec:
               port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: TorrefactoLogin
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.torrefactoCredSecret }}
+                  key: login
+            - name: TorrefactoPassword
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.torrefactoCredSecret }}
+                  key: password
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

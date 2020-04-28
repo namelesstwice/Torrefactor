@@ -8,7 +8,7 @@ image:
   repository: torrefactor/torrefactor
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart version.
-  tag: "1.1"
+  tag: "0.9"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -34,6 +34,8 @@ service:
 
 ingress:
   enabled: true
+
+torrefactoCredSecret: "torrefacto-credentials"
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
