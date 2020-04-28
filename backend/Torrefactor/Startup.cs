@@ -28,7 +28,8 @@ namespace Torrefactor
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json")
-                .AddJsonFile("appsettings.development.json", true);
+                .AddJsonFile("appsettings.development.json", true)
+                .AddEnvironmentVariables();
 
             services.AddSingleton(p => builder.Build().Get<Config>());
             services.AddSingleton(p =>
