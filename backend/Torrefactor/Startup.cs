@@ -103,7 +103,7 @@ namespace Torrefactor
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                //endpoints.MapFallbackToController("Index", "Spa");
+                endpoints.MapFallbackToController("Index", "Spa");
             });
         }
     }
