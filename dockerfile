@@ -1,23 +1,23 @@
-FROM microsoft/dotnet:2.1-sdk-alpine AS build-dotnet
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-alpine AS build-dotnet
 WORKDIR /app
 
 COPY *.sln ./
-COPY Torrefactor.New/*.csproj Torrefactor.New/
-COPY Microsoft.AspNetCore.Identity.MongoDB/*.csproj Microsoft.AspNetCore.Identity.MongoDB/
+COPY backend/Torrefactor/*.csproj backend/Torrefactor/
+COPY backend/Torrefactor.Tests/*.csproj backend/Torrefactor.Tests/
 RUN dotnet restore
 COPY . .
-WORKDIR /app/Torrefactor.New
+WORKDIR /app/backend/Torrefactor
 RUN dotnet publish -c Release -o out
 
-FROM node:8-alpine AS build-ng
+FROM node:14 AS build-ng
 WORKDIR /app
 COPY frontend .
 RUN ls
-RUN npm install
+RUN npm ci
 RUN npm run ng build
 
-FROM microsoft/dotnet:2.1-aspnetcore-runtime-alpine AS runtime
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine AS runtime
 WORKDIR /app
-COPY --from=build-dotnet /app/Torrefactor.New/out ./
+COPY --from=build-dotnet /app/backend/Torrefactor/out ./
 COPY --from=build-ng /app/dist/frontend ./
-ENTRYPOINT ["dotnet", "Torrefactor.New.dll"]
+ENTRYPOINT ["dotnet", "Torrefactor.dll"]

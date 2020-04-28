@@ -1,0 +1,8 @@
+**/bin
+**/obj
+.idea
+.git
+.vs
+.vscode
+packages
+frontend/node_modules
