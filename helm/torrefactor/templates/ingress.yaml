@@ -1,0 +1,19 @@
+{{- if .Values.ingress.enabled -}}
+{{- $fullName := include "torrefactor.fullname" . -}}
+{{- $svcPort := .Values.service.port -}}
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "torrefactor.labels" . | nindent 4 }}
+spec:
+  rules:
+    - host: "torrefactor.{{$.Values.kuberhost}}"
+      http:
+        paths:
+          - path: ""
+            backend:
+              serviceName: {{ $fullName }}
+              servicePort: {{ $svcPort }}
+{{- end }}
