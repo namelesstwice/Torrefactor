@@ -5,6 +5,6 @@ namespace Torrefactor.Models.Auth
 {
     public class ApplicationUser : MongoUser
     {
-        public string DisplayName { get; set; }
+        public string? DisplayName { get; set; }
     }
 }

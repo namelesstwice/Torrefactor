@@ -6,12 +6,12 @@ namespace Torrefactor.Models.Auth
 	public class RegistrationModel
 	{
 		[DataMember(Name = "name")]
-		public string Name { get; set; }
+		public string? Name { get; set; }
 		
 		[DataMember(Name = "email")]
-		public string Email { get; set; }
+		public string? Email { get; set; }
 		
 		[DataMember(Name = "password")]
-		public string Password { get; set; }
+		public string? Password { get; set; }
 	}
 }

@@ -12,12 +12,12 @@ namespace Torrefactor.Models.Auth
 		public bool IsAdmin { get; }
 
 		[DataMember(Name = "name")]
-		public string Name { get; }
+		public string? Name { get; }
 
 		[DataMember(Name = "email")]
 		public string Email { get; }
 
-		public UserModel(bool isAdmin, string displayName, string email, string id)
+		public UserModel(bool isAdmin, string? displayName, string email, string id)
 		{
 			IsAdmin = isAdmin;
 			Name = displayName;

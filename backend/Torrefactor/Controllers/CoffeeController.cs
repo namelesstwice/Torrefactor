@@ -32,8 +32,8 @@ namespace Torrefactor.Controllers
 		{
 			var coffeeKinds = await _coffeeKindRepository.GetAll();
 			var userOrders = 
-				(await _coffeeOrderRepository.GetUserOrders(User.Identity.Name)) 
-				?? new CoffeeOrder(User.Identity.Name);
+				(await _coffeeOrderRepository.GetUserOrders(User.Identity.Name!)) 
+				?? new CoffeeOrder(User.Identity.Name!);
 
 			return coffeeKinds.Select(kind =>
 			{
@@ -50,8 +50,8 @@ namespace Torrefactor.Controllers
 				return new CoffeeKindModel
 				{
 					Name = kind.Name,
-					Packs = packs,
-					SmallPack = packs?.First(),
+					Packs = packs ?? new CoffeePackModel[0],
+					SmallPack = packs?.FirstOrDefault(),
 					BigPack = packs?.Last(),
 					IsAvailable = kind is AvailableCoffeeKind
 				};
@@ -119,8 +119,8 @@ namespace Torrefactor.Controllers
 		public async Task Add(string coffeeName, int weight)
 		{
 			var userOrders =
-				(await _coffeeOrderRepository.GetUserOrders(User.Identity.Name))
-				?? new CoffeeOrder(User.Identity.Name);
+				(await _coffeeOrderRepository.GetUserOrders(User.Identity.Name!))
+				?? new CoffeeOrder(User.Identity.Name!);
 
 			var desiredPack = await getDesiredPack(coffeeName, weight);
 			userOrders.AddCoffeePack(desiredPack);
@@ -132,8 +132,8 @@ namespace Torrefactor.Controllers
 		public async Task Remove(string coffeeName, int weight)
 		{
 			var userOrders =
-				(await _coffeeOrderRepository.GetUserOrders(User.Identity.Name))
-				?? new CoffeeOrder(User.Identity.Name);
+				(await _coffeeOrderRepository.GetUserOrders(User.Identity.Name!))
+				?? new CoffeeOrder(User.Identity.Name!);
 
 			var desiredPack = await getDesiredPack(coffeeName, weight);
 			userOrders.RemoveCoffeePack(desiredPack);
@@ -170,7 +170,7 @@ namespace Torrefactor.Controllers
 				.ToArray();
 
 			await _coffeeKindRepository.Clean();
-			await _coffeeKindRepository.Insert(coffeeKinds);
+			await _coffeeKindRepository.Insert(coffeeKinds!);
 		}
 
 		[HttpPost("send")]
@@ -233,11 +233,11 @@ namespace Torrefactor.Controllers
 
 		public class CoffeeKindModel
 		{
-			public string Name { get; set; }
-			public CoffeePackModel[] Packs { get; set; }
+			public string Name { get; set; } = "";
+			public CoffeePackModel[] Packs { get; set; } = new CoffeePackModel[0];
 			public bool IsAvailable { get; set; }
-			public CoffeePackModel SmallPack { get; set; }
-			public CoffeePackModel BigPack { get; set; }
+			public CoffeePackModel? SmallPack { get; set; }
+			public CoffeePackModel? BigPack { get; set; }
 		}
 
 		public class CoffeePackModel

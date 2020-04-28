@@ -39,9 +39,12 @@ namespace Torrefactor.Services
 			if (priceHolder == null)
 				yield break;
 
-			var packSizeHolders = div.Descendants()
+			var packSizeHolders = div?.Descendants()
 				.Single(_ => hasClass(_, "offer-type"))
 				.Descendants("option");
+			
+			if (packSizeHolders == null)
+				yield break;
 
 			foreach (var packSizeHolder in packSizeHolders)
 			{
@@ -58,7 +61,7 @@ namespace Torrefactor.Services
 			return node.Attributes.Any(a => a.Name == "class" && a.Value.Split(' ').Any(_ => _ == className));
 		}
 
-		private static bool hasAttribute(HtmlNode node, string name, string value = null)
+		private static bool hasAttribute(HtmlNode node, string name, string? value = null)
 		{
 			return node.Attributes.Any(a => a.Name == name && (value == null || a.Value == value));
 		}

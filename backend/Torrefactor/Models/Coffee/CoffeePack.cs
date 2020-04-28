@@ -10,7 +10,7 @@ namespace Torrefactor.Models
 			return Weight == other.Weight && string.Equals(CoffeeKindName, other.CoffeeKindName);
 		}
 
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
 			if (ReferenceEquals(null, obj)) return false;
 			if (ReferenceEquals(this, obj)) return true;
@@ -28,6 +28,8 @@ namespace Torrefactor.Models
 
 		private CoffeePack()
 		{
+			CoffeeKindName = "";
+			TorrefactoId = "";
 		}
 
 		public PackState State { get; private set; }
@@ -77,17 +79,13 @@ namespace Torrefactor.Models
 
 		public class Builder
 		{
-			private CoffeePack _pack;
+			private CoffeePack? _pack;
 
-			public int Weight
-			{
-				get { return _pack.Weight; }
-			}
+			public int Weight => 
+				_pack?.Weight ?? throw new InvalidOperationException("Build is completed");
 
-			public int Price
-			{
-				get { return _pack.Price; }
-			}
+			public int Price => 
+				_pack?.Price ?? throw new InvalidOperationException("Build is completed");
 
 			public Builder(CoffeePack pack)
 			{
@@ -96,19 +94,25 @@ namespace Torrefactor.Models
 
 			public CoffeePack.Builder AppendTo(CoffeeKind kind)
 			{
+				if (_pack == null)
+					throw new InvalidOperationException("Build is completed");
+				
 				_pack.CoffeeKindName = kind.Name;
 				return this;
 			}
 
 			public CoffeePack.Builder SetId(string torrefactoId)
 			{
+				if (_pack == null)
+					throw new InvalidOperationException("Build is completed");
+				
 				_pack.TorrefactoId = torrefactoId;
 				return this;
 			}
 
 			public CoffeePack Finish()
 			{
-				var res = _pack;
+				var res = _pack ?? throw new InvalidOperationException("Build is completed");
 
 				if (string.IsNullOrEmpty(res.CoffeeKindName))
 					throw new InvalidOperationException("Coffee kind name can't be an empty string");

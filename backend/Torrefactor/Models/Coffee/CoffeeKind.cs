@@ -19,6 +19,7 @@ namespace Torrefactor.Models
 
 		protected CoffeeKind()
 		{
+			Name = "";
 		}
 
 		[BsonElement("name")]

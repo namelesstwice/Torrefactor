@@ -30,7 +30,7 @@ namespace Torrefactor.Controllers
 
 		[Route("users/current")]
 		[HttpGet]
-		public async Task<UserModel> GetCurrentUser()
+		public async Task<UserModel?> GetCurrentUser()
 		{
 			if (!User.Identity.IsAuthenticated)
 				return null;
@@ -99,8 +99,11 @@ namespace Torrefactor.Controllers
 
 		[Route("register")]
 		[HttpPost]
-		public async Task<ActionResult> Register([FromBody] RegistrationModel model)
+		public async Task<ActionResult> Register([FromBody] RegistrationModel? model)
 		{
+			if (model == null)
+				throw new ArgumentNullException(nameof(model));
+			
 			var isAdmin = AuthExtensions.IsAdminEmail(model.Email, _config);
 			
 			var result = await _userManager.CreateAsync(

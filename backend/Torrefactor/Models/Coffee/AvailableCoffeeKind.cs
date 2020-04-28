@@ -13,13 +13,14 @@ namespace Torrefactor.Models
 		private AvailableCoffeeKind(int torrefactoId)
 		{
 			TorrefactoId = torrefactoId;
+			_availablePacks = new List<CoffeePack>();
 		}
 
 		public AvailableCoffeeKind(string name, int torrefactoId, IEnumerable<CoffeePack.Builder> coffeePacks)
 			: base(name)
 		{
 			TorrefactoId = torrefactoId;
-			AvailablePacks = coffeePacks.Select(p => p.AppendTo(this).Finish()).ToArray();
+			_availablePacks = coffeePacks.Select(p => p.AppendTo(this).Finish()).ToList();
 		}
 		
 		[BsonElement("torrefactoId")]
