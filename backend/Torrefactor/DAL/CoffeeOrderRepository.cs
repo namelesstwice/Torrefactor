@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Torrefactor.Models;
 
@@ -8,6 +10,11 @@ namespace Torrefactor.DAL
 	{
 		public CoffeeOrderRepository(IMongoDatabase db) : base(db, "coffeeOrders")
 		{
+		}
+
+		public async Task<IReadOnlyCollection<CoffeeOrder>> Get(ObjectId groupOrderId)
+		{
+			return await Collection.Find(_ => _.GroupOrderId == groupOrderId).ToListAsync();
 		}
 
 		public async Task<CoffeeOrder> GetUserOrders(string userName)

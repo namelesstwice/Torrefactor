@@ -8,9 +8,9 @@ using Torrefactor.Models;
 
 namespace Torrefactor.Services
 {
-	public class TorrefactoClient
+	public class TorrefactoCoffeeProvider : ICoffeeProvider
 	{
-		public TorrefactoClient(Config config)
+		public TorrefactoCoffeeProvider(Config config)
 		{
 			_config = config;
 		}

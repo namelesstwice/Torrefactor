@@ -23,7 +23,6 @@ namespace Torrefactor.DAL
 			return await Collection.Find(el => true).ToListAsync();
 		}
 
-
 		public Task Clean()
 		{
 			return Collection.DeleteManyAsync(el => true);

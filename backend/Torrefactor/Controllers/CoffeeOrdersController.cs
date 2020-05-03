@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -12,52 +11,19 @@ using Torrefactor.Services;
 namespace Torrefactor.Controllers
 {
 	[Authorize]
-	[Route("api/coffee")]
-	public class CoffeeController : Controller
+	[Route("api/coffee-orders")]
+	public class CoffeeOrdersController : Controller
 	{
-		public CoffeeController(
+		public CoffeeOrdersController(
 			CoffeeKindRepository coffeeKindRepository, 
 			CoffeeOrderRepository coffeeOrderRepository,
-			TorrefactoClient torrefactoClient,
-			Config config)
+			TorrefactoCoffeeProvider torrefactoClient)
 		{
 			_coffeeKindRepository = coffeeKindRepository;
 			_coffeeOrderRepository = coffeeOrderRepository;
 			_torrefactoClient = torrefactoClient;
-			_config = config;
 		}
 
-		[HttpGet("")]
-		public async Task<IEnumerable<CoffeeKindModel>> Get()
-		{
-			var coffeeKinds = await _coffeeKindRepository.GetAll();
-			var userOrders = 
-				(await _coffeeOrderRepository.GetUserOrders(User.Identity.Name!)) 
-				?? new CoffeeOrder(User.Identity.Name!);
-
-			return coffeeKinds.Select(kind =>
-			{
-				var packs = (kind as AvailableCoffeeKind)?.AvailablePacks
-					.Select(pack => new CoffeePackModel
-					{
-						Price = pack.Price,
-						Weight = pack.Weight,
-						Count = userOrders.GetCount(kind, pack.Weight)
-					})
-					.OrderBy(_ => _.Weight)
-					.ToArray();
-				
-				return new CoffeeKindModel
-				{
-					Name = kind.Name,
-					Packs = packs ?? new CoffeePackModel[0],
-					SmallPack = packs?.FirstOrDefault(),
-					BigPack = packs?.Last(),
-					IsAvailable = kind is AvailableCoffeeKind
-				};
-			});
-		}
-		
 		[HttpGet("orders")]
 		[Authorize(Roles = "admin")]
 		public async Task<IEnumerable> GetAllOrders()
@@ -94,12 +60,12 @@ namespace Torrefactor.Controllers
 							Weight = p.Weight,
 							State = p.State
 						})
-						.Select(p => new CoffeeKindModel
+						.Select(p => new CoffeeOrdersController.CoffeeKindModel
 						{
 							Name = p.Key.CoffeeName,
 							Packs = new []
 							{
-								new CoffeePackModel
+								new CoffeeOrdersController.CoffeePackModel
 								{
 									Weight = p.Key.Weight,
 									Count = p.Count()
@@ -116,7 +82,7 @@ namespace Torrefactor.Controllers
 		}
 
 		[HttpPost("add")]
-		public async Task Add(string coffeeName, int weight)
+		public async Task AddPackToOrder(string coffeeName, int weight)
 		{
 			var userOrders =
 				(await _coffeeOrderRepository.GetUserOrders(User.Identity.Name!))
@@ -129,7 +95,7 @@ namespace Torrefactor.Controllers
 		}
 
 		[HttpPost("remove")]
-		public async Task Remove(string coffeeName, int weight)
+		public async Task RemovePackFromOrder(string coffeeName, int weight)
 		{
 			var userOrders =
 				(await _coffeeOrderRepository.GetUserOrders(User.Identity.Name!))
@@ -139,38 +105,6 @@ namespace Torrefactor.Controllers
 			userOrders.RemoveCoffeePack(desiredPack);
 
 			await _coffeeOrderRepository.Update(userOrders);
-		}
-
-		[HttpPost("reload")]
-		[Authorize(Roles = "admin")]
-		public async Task ReloadFromTorrefacto()
-		{
-			var coffeeKinds = (await _torrefactoClient.GetCoffeeKinds())
-				.ToLookup(k => k.Name)
-				.Select(group =>
-				{
-					var allKindsWithSameName = group.ToArray();
-					if (allKindsWithSameName.Length == 1)
-						return allKindsWithSameName[0];
-
-					var availableCoffeKinds = allKindsWithSameName
-						.Where(k => k is AvailableCoffeeKind)
-						.ToArray();
-
-					if (availableCoffeKinds.Length == 1)
-						return availableCoffeKinds[0];
-
-					if (availableCoffeKinds.Length == 0)
-						return null;
-
-					throw new InvalidOperationException(
-						"Unexpeted coffee kind count with name: " + group.Key);
-				})
-				.Where(k => k != null)
-				.ToArray();
-
-			await _coffeeKindRepository.Clean();
-			await _coffeeKindRepository.Insert(coffeeKinds!);
 		}
 
 		[HttpPost("send")]
@@ -228,16 +162,15 @@ namespace Torrefactor.Controllers
 
 		private readonly CoffeeKindRepository _coffeeKindRepository;
 		private readonly CoffeeOrderRepository _coffeeOrderRepository;
-		private readonly TorrefactoClient _torrefactoClient;
-		private readonly Config _config;
+		private readonly TorrefactoCoffeeProvider _torrefactoClient;
 
 		public class CoffeeKindModel
 		{
 			public string Name { get; set; } = "";
-			public CoffeePackModel[] Packs { get; set; } = new CoffeePackModel[0];
+			public CoffeeOrdersController.CoffeePackModel[] Packs { get; set; } = new CoffeeOrdersController.CoffeePackModel[0];
 			public bool IsAvailable { get; set; }
-			public CoffeePackModel? SmallPack { get; set; }
-			public CoffeePackModel? BigPack { get; set; }
+			public CoffeeOrdersController.CoffeePackModel? SmallPack { get; set; }
+			public CoffeeOrdersController.CoffeePackModel? BigPack { get; set; }
 		}
 
 		public class CoffeePackModel
