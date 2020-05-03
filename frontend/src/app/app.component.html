@@ -1,8 +1,12 @@
-<mat-toolbar>
-    <h1>Torrefactor</h1>
-    <a mat-button routerLink="/coffee-kinds" *ngIf="isAuthenticated">My order</a>
-    <a mat-button routerLink="/admin/orders" *ngIf="isAdmin">Manage orders</a>
-    <a mat-button routerLink="/admin/invites" *ngIf="isAdmin">Manage invites</a>
-    <button mat-stroked-button color="primary" (click)="logout()" *ngIf="isAuthenticated">Logout</button>
-</mat-toolbar>
-<router-outlet></router-outlet>
+<div fxLayout="row">
+    <mat-toolbar>
+        <h1>Torrefactor</h1>
+        <a mat-button routerLink="/coffee-kinds" *ngIf="isAuthenticated">My order</a>
+        <a mat-button routerLink="/admin/orders" *ngIf="isAdmin">Manage orders</a>
+        <a mat-button routerLink="/admin/invites" *ngIf="isAdmin">Manage invites</a>
+        <button mat-stroked-button color="primary" (click)="logout()" *ngIf="isAuthenticated">Logout</button>
+    </mat-toolbar>
+</div>
+<div fxLayout="row" class="main">
+    <router-outlet></router-outlet>
+</div>

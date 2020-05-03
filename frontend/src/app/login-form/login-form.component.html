@@ -1,26 +1,30 @@
-<form (ngSubmit)="login()">
-    <mat-form-field appearance="fill">
-        <mat-label>Email</mat-label>
-        <input name="email" matInput required [(ngModel)]="email" #fEmail="ngModel">
-        <mat-error *ngIf="fEmail.invalid && (fEmail.dirty || fEmail.touched) && fEmail.errors.required">
-            Email is required
-        </mat-error>
-    </mat-form-field>
-    <br>
-    <mat-form-field appearance="fill">
-        <mat-label>Password</mat-label>
-        <input name="password" matInput type="password" required [(ngModel)]="password" #fPwd="ngModel">
-        <mat-error *ngIf="fPwd.invalid && (fPwd.dirty || fPwd.touched) && fPwd.errors.required">
-            Password is required
-        </mat-error>
-    </mat-form-field>
-    <br>
-    <mat-error *ngIf="serverError">
-        {{ serverError }}
-    </mat-error>
-    <button mat-raised-button color="primary" type="submit">Login</button>
-</form>
-<br>
-<p>
-    Don't have an account yet? Please <a routerLink="/register">register</a>!
-</p>
+<div fxLayout="row" fxLayoutAlign="center center" class="login-wrapper">
+    <div fxLayout="column" fxFlex="25%" class="login-form">
+        <form (ngSubmit)="login()" fxLayout="column">
+            <mat-form-field appearance="fill">
+                <mat-label>Email</mat-label>
+                <input name="email" matInput required [(ngModel)]="email" #fEmail="ngModel">
+                <mat-error *ngIf="fEmail.invalid && (fEmail.dirty || fEmail.touched) && fEmail.errors.required">
+                    Email is required
+                </mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="fill">
+                <mat-label>Password</mat-label>
+                <input name="password" matInput type="password" required [(ngModel)]="password" #fPwd="ngModel">
+                <mat-error *ngIf="fPwd.invalid && (fPwd.dirty || fPwd.touched) && fPwd.errors.required">
+                    Password is required
+                </mat-error>
+            </mat-form-field>
+            <mat-error *ngIf="serverError" class="error">
+                {{ serverError }}
+            </mat-error>
+            <button mat-raised-button color="primary" type="submit">Login</button>
+        </form>
+        <br>
+        <div>
+            <p>
+                Don't have an account yet? Please <a routerLink="/register">register</a>!
+            </p>
+        </div>
+    </div>
+</div>
