@@ -5,12 +5,13 @@
 replicaCount: 1
 
 image:
-  repository: torrefactor/torrefactor
+  repository: docker-registry.smartcat.ai/torrefactor
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart version.
-  tag: "0.9"
+  tag: "0.9.1"
 
-imagePullSecrets: []
+imagePullSecrets:
+  - name: torrefactor-docker-creds
 nameOverride: ""
 fullnameOverride: ""
 
