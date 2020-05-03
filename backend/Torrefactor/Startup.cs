@@ -39,7 +39,7 @@ namespace Torrefactor
             });
             services.AddSingleton<CoffeeKindRepository>();
             services.AddSingleton<CoffeeOrderRepository>();
-            services.AddSingleton<TorrefactoClient>();
+            services.AddSingleton<TorrefactoCoffeeProvider>();
             
             services.AddIdentityMongoDbProvider<ApplicationUser, ApplicationRole>(identityOptions =>
             {

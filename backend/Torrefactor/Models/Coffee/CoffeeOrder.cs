@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Torrefactor.Models
@@ -8,19 +9,21 @@ namespace Torrefactor.Models
 	{
 		[BsonElement("packs")]
 		private List<CoffeePack> _packs;
-
-		public CoffeeOrder(string username)
-		{
-			Username = username;
-			_packs = new List<CoffeePack>();
-		}
-
+		
 		[BsonId]
 		public string Username { get; private set; }
+		
+		[BsonElement("groupOrderId")]
+		public ObjectId GroupOrderId { get; private set; }
+		
+		[BsonIgnore]
+		public IReadOnlyCollection<CoffeePack> Packs => _packs;
 
-		public IReadOnlyCollection<CoffeePack> Packs
+		public CoffeeOrder(string username, ObjectId groupOrderId)
 		{
-			get { return _packs; }
+			Username = username;
+			GroupOrderId = groupOrderId;
+			_packs = new List<CoffeePack>();
 		}
 
 		public void AddCoffeePack(CoffeePack pack)
