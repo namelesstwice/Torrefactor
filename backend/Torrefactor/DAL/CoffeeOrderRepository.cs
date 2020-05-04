@@ -17,7 +17,7 @@ namespace Torrefactor.DAL
 			return await Collection.Find(_ => _.GroupOrderId == groupOrderId).ToListAsync();
 		}
 
-		public async Task<CoffeeOrder> GetUserOrders(string userName, ObjectId groupOrderId)
+		public async Task<CoffeeOrder> GetUserOrder(string userName, ObjectId groupOrderId)
 		{
 			return await Collection
 				.Find(_ => _.Username == userName && _.GroupOrderId == groupOrderId)

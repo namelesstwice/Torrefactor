@@ -31,7 +31,7 @@ namespace Torrefactor.Services
 		    if (currentGroupOrder == null)
 			    return null;
 
-		    return (await _coffeeOrderRepository.GetUserOrders(customerName, currentGroupOrder.Id)) 
+		    return (await _coffeeOrderRepository.GetUserOrder(customerName, currentGroupOrder.Id)) 
 		           ?? new CoffeeOrder(customerName, currentGroupOrder.Id);
 	    }
 
@@ -41,14 +41,14 @@ namespace Torrefactor.Services
 		    if (currentGroupOrder == null)
 			    throw new CoffeeOrderException("No group order available"); 
 					
-        	var userOrders =
-        		(await _coffeeOrderRepository.GetUserOrders(customerName, currentGroupOrder.Id))
+        	var userOrder =
+        		(await _coffeeOrderRepository.GetUserOrder(customerName, currentGroupOrder.Id))
         		?? new CoffeeOrder(customerName, currentGroupOrder.Id);
 
         	var desiredPack = await GetDesiredPack(coffeeName, weight);
-        	userOrders.AddCoffeePack(desiredPack);
+        	userOrder.AddCoffeePack(desiredPack);
 
-        	await _coffeeOrderRepository.Update(userOrders);
+        	await _coffeeOrderRepository.Update(userOrder);
         }
 	    
         public async Task RemovePackFromOrder(string customerName, string coffeeName, int weight)
@@ -57,14 +57,14 @@ namespace Torrefactor.Services
 	        if (currentGroupOrder == null)
 		        throw new CoffeeOrderException("No group order available"); 
 	        
-        	var userOrders =
-        		(await _coffeeOrderRepository.GetUserOrders(customerName, currentGroupOrder.Id))
+        	var userOrder =
+        		(await _coffeeOrderRepository.GetUserOrder(customerName, currentGroupOrder.Id))
         		?? new CoffeeOrder(customerName, currentGroupOrder.Id);
 
         	var desiredPack = await GetDesiredPack(coffeeName, weight);
-        	userOrders.RemoveCoffeePack(desiredPack);
+        	userOrder.RemoveCoffeePack(desiredPack);
 
-        	await _coffeeOrderRepository.Update(userOrders);
+        	await _coffeeOrderRepository.Update(userOrder);
         }
         
         public async Task SendToCoffeeProvider()
