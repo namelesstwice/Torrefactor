@@ -1,15 +1,30 @@
 ﻿using System;
 using System.Linq;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace Torrefactor.Models
 {
 	public class CoffeePack
 	{
-		protected bool Equals(CoffeePack other)
-		{
-			return Weight == other.Weight && string.Equals(CoffeeKindName, other.CoffeeKindName);
-		}
+		[BsonId]
+		public ObjectId Id { get; private set; }
+		
+		[BsonElement("state"), BsonRequired]
+		public PackState State { get; private set; }
 
+		[BsonElement("weight"), BsonRequired]
+		public int Weight { get; private set; }
+
+		[BsonElement("price"), BsonRequired]
+		public int Price { get; private set; }
+
+		[BsonElement("coffeeKindName"), BsonRequired]
+		public string CoffeeKindName { get; private set; }
+
+		[BsonElement("externalId"), BsonRequired]
+		public string ExternalId { get; private set; }
+		
 		public override bool Equals(object? obj)
 		{
 			if (ReferenceEquals(null, obj)) return false;
@@ -25,22 +40,17 @@ namespace Torrefactor.Models
 				return (Weight*397) ^ (CoffeeKindName != null ? CoffeeKindName.GetHashCode() : 0);
 			}
 		}
+		
+		private bool Equals(CoffeePack other)
+		{
+			return Weight == other.Weight && string.Equals(CoffeeKindName, other.CoffeeKindName);
+		}
 
 		private CoffeePack()
 		{
 			CoffeeKindName = "";
-			TorrefactoId = "";
+			ExternalId = "";
 		}
-
-		public PackState State { get; private set; }
-
-		public int Weight { get; private set; }
-
-		public int Price { get; private set; }
-
-		public string CoffeeKindName { get; private set; }
-
-		public string TorrefactoId { get; private set; }
 
 		public void Refresh(AvailableCoffeeKind coffeeKind)
 		{
@@ -61,7 +71,6 @@ namespace Torrefactor.Models
 
 			Price = samePack.Price;
 		}
-
 
 		public void MarkAsUnavailable()
 		{
@@ -106,7 +115,7 @@ namespace Torrefactor.Models
 				if (_pack == null)
 					throw new InvalidOperationException("Build is completed");
 				
-				_pack.TorrefactoId = torrefactoId;
+				_pack.ExternalId = torrefactoId;
 				return this;
 			}
 
@@ -117,7 +126,7 @@ namespace Torrefactor.Models
 				if (string.IsNullOrEmpty(res.CoffeeKindName))
 					throw new InvalidOperationException("Coffee kind name can't be an empty string");
 
-				if (string.IsNullOrEmpty(res.TorrefactoId))
+				if (string.IsNullOrEmpty(res.ExternalId))
 					throw new InvalidOperationException("Torrefacto ID can't be an empty string");
 
 				if (res.Weight < 0)
@@ -130,12 +139,5 @@ namespace Torrefactor.Models
 				return res;
 			}
 		}
-	}
-
-	public enum PackState
-	{
-		Available,
-		PriceChanged,
-		Unavailable
 	}
 }

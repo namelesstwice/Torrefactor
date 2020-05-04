@@ -25,6 +25,16 @@ namespace Torrefactor.Services
 		    _coffeeProvider = coffeeProvider;
 	    }
 
+	    public async Task<CoffeeOrder?> TryGetCurrentOrder(string customerName)
+	    {
+		    var currentGroupOrder = await _groupCoffeeOrderRepository.GetCurrentOrder();
+		    if (currentGroupOrder == null)
+			    return null;
+
+		    return (await _coffeeOrderRepository.GetUserOrders(customerName, currentGroupOrder.Id)) 
+		           ?? new CoffeeOrder(customerName, currentGroupOrder.Id);
+	    }
+
 	    public async Task AddPackToOrder(string customerName, string coffeeName, int weight)
 	    {
 		    var currentGroupOrder = await _groupCoffeeOrderRepository.GetCurrentOrder();
@@ -32,10 +42,10 @@ namespace Torrefactor.Services
 			    throw new CoffeeOrderException("No group order available"); 
 					
         	var userOrders =
-        		(await _coffeeOrderRepository.GetUserOrders(customerName))
+        		(await _coffeeOrderRepository.GetUserOrders(customerName, currentGroupOrder.Id))
         		?? new CoffeeOrder(customerName, currentGroupOrder.Id);
 
-        	var desiredPack = await getDesiredPack(coffeeName, weight);
+        	var desiredPack = await GetDesiredPack(coffeeName, weight);
         	userOrders.AddCoffeePack(desiredPack);
 
         	await _coffeeOrderRepository.Update(userOrders);
@@ -48,10 +58,10 @@ namespace Torrefactor.Services
 		        throw new CoffeeOrderException("No group order available"); 
 	        
         	var userOrders =
-        		(await _coffeeOrderRepository.GetUserOrders(customerName))
+        		(await _coffeeOrderRepository.GetUserOrders(customerName, currentGroupOrder.Id))
         		?? new CoffeeOrder(customerName, currentGroupOrder.Id);
 
-        	var desiredPack = await getDesiredPack(coffeeName, weight);
+        	var desiredPack = await GetDesiredPack(coffeeName, weight);
         	userOrders.RemoveCoffeePack(desiredPack);
 
         	await _coffeeOrderRepository.Update(userOrders);
@@ -85,7 +95,7 @@ namespace Torrefactor.Services
         	}
         }
 
-        private async Task<CoffeePack> getDesiredPack(string coffeeName, int weight)
+        private async Task<CoffeePack> GetDesiredPack(string coffeeName, int weight)
         {
 	        var coffeeKind = await _coffeeKindRepository.Get(coffeeName);
 	        if (coffeeKind == null)
