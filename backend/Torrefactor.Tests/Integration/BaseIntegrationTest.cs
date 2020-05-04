@@ -12,6 +12,7 @@ using MongoDB.Driver;
 using Newtonsoft.Json;
 using Torrefactor.Models;
 using Torrefactor.Models.Auth;
+using Torrefactor.Services;
 using Torrefactor.Tests.Common;
 
 namespace Torrefactor.Tests.Integration
@@ -32,7 +33,7 @@ namespace Torrefactor.Tests.Integration
                     };
                     
                     services.AddSingleton(fakeCfg);
-                    
+
                     // TODO: hack, need to modify AspNetCore.Identity.Mongo
                     var userCollection = MongoDatabase.GetCollection<ApplicationUser>("Users");
                     var roleCollection = MongoDatabase.GetCollection<ApplicationRole>("Roles");

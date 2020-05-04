@@ -14,23 +14,24 @@ namespace Torrefactor.Controllers
 	public class CoffeeOrdersController : Controller
 	{
 		public CoffeeOrdersController(
-			CoffeeKindRepository coffeeKindRepository, 
-			CoffeeOrderRepository coffeeOrderRepository,
+			CoffeeKindRepository coffeeKindRepository,
 			CoffeeOrderService coffeeOrderService)
 		{
 			_coffeeKindRepository = coffeeKindRepository;
-			_coffeeOrderRepository = coffeeOrderRepository;
 			_coffeeOrderService = coffeeOrderService;
 		}
 
-		[HttpGet("orders")]
+		[HttpGet("")]
 		[Authorize(Roles = "admin")]
 		public async Task<IEnumerable> GetAllOrders()
 		{
-			var orders = await _coffeeOrderRepository.GetAll();
+			var currentOrder = await _coffeeOrderService.TryGetCurrentGroupOrder();
+			if (currentOrder == null)
+				return Enumerable.Empty<object>();
+			
 			var kinds = (await _coffeeKindRepository.GetAll()).ToDictionary(p => p.Name);
 
-			foreach (var pack in orders.SelectMany(o => o.Packs))
+			foreach (var pack in currentOrder.PersonalOrders.SelectMany(o => o.Packs))
 			{
 				if (!kinds.TryGetValue(pack.CoffeeKindName, out var kind))
 				{
@@ -47,7 +48,7 @@ namespace Torrefactor.Controllers
 				pack.Refresh(availableCoffeeKind);
 			}
 
-			return orders
+			return currentOrder.PersonalOrders
 				.Where(o => o.Packs.Any())
 				.Select(o => new
 				{
@@ -80,13 +81,13 @@ namespace Torrefactor.Controllers
 				});
 		}
 
-		[HttpPost("add")]
+		[HttpPost("current-user/{coffeeName}/{weight}")]
 		public async Task AddPackToOrder(string coffeeName, int weight)
 		{
 			await _coffeeOrderService.AddPackToOrder(User.Identity.Name!, coffeeName, weight);
 		}
 
-		[HttpPost("remove")]
+		[HttpDelete("current-user/{coffeeName}/{weight}")]
 		public async Task RemovePackFromOrder(string coffeeName, int weight)
 		{
 			await _coffeeOrderService.RemovePackFromOrder(User.Identity.Name!, coffeeName, weight);
@@ -98,16 +99,16 @@ namespace Torrefactor.Controllers
 		{
 			await _coffeeOrderService.SendToCoffeeProvider();
 		}
-
-		[HttpPost("clear")]
+		
+		
+		[HttpPost("")]
 		[Authorize(Roles = "admin")]
-		public async Task ClearAllOrders()
+		public async Task CreateNewGroupOrder()
 		{
-			await _coffeeOrderRepository.Clean();
+			await _coffeeOrderService.CreateNewGroupOrder();
 		}
 
 		private readonly CoffeeKindRepository _coffeeKindRepository;
-		private readonly CoffeeOrderRepository _coffeeOrderRepository;
 		private readonly CoffeeOrderService _coffeeOrderService;
 	}
 }

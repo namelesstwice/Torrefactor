@@ -28,7 +28,7 @@ namespace Torrefactor.Controllers
         public async Task<IEnumerable<CoffeeKindModel>> Get()
         {
             var coffeeKinds = await _coffeeKindService.GetAll();
-            var userOrder = await _coffeeOrderService.TryGetCurrentOrder(User.Identity.Name!);
+            var userOrder = await _coffeeOrderService.TryGetPersonalOrder(User.Identity.Name!);
 
             return coffeeKinds.Select(kind =>
             {

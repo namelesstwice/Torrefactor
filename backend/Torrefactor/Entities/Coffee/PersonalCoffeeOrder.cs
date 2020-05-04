@@ -5,24 +5,20 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace Torrefactor.Models
 {
-	public class CoffeeOrder
+	public class PersonalCoffeeOrder
 	{
-		[BsonElement("packs")]
-		private List<CoffeePack> _packs;
-		
 		[BsonId]
 		public string Username { get; private set; }
-		
-		[BsonElement("groupOrderId")]
-		public ObjectId GroupOrderId { get; private set; }
-		
+
 		[BsonIgnore]
 		public IReadOnlyCollection<CoffeePack> Packs => _packs;
+		
+		[BsonElement("packs")]
+		private List<CoffeePack> _packs;
 
-		public CoffeeOrder(string username, ObjectId groupOrderId)
+		public PersonalCoffeeOrder(string username)
 		{
 			Username = username;
-			GroupOrderId = groupOrderId;
 			_packs = new List<CoffeePack>();
 		}
 
