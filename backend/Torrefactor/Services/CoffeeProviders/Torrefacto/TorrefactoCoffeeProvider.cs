@@ -39,7 +39,7 @@ namespace Torrefactor.Services
 
 		public Task AddToBasket(AvailableCoffeeKind kind, CoffeePack pack, int count)
 		{
-			var torrefactoId = kind.GetActualTorrefactoId(pack);
+			var torrefactoId = kind.GetActualExternalId(pack);
 			var data = new NameValueCollection
 			{
 				{"action", "ADD2BASKET"}, 
