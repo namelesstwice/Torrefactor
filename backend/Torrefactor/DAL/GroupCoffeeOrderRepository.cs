@@ -10,12 +10,17 @@ namespace Torrefactor.DAL
         {
         }
 
-        public Task<GroupCoffeeOrder> GetCurrentOrder()
+        public Task<GroupCoffeeOrder?> GetCurrentOrder()
         {
             return Collection
-                .Find(_ => !_.IsSent)
+                .Find(_ => _.IsActive)
                 .SortByDescending(_ => _.CreatedAt)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync()!;
+        }
+
+        public async Task Update(GroupCoffeeOrder o)
+        {
+            await Collection.ReplaceOneAsync(_ => _.Id == o.Id, o);
         }
     }
 }

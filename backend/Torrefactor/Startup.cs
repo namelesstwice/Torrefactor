@@ -16,6 +16,7 @@ using Torrefactor.DAL;
 using Torrefactor.Models;
 using Torrefactor.Models.Auth;
 using Torrefactor.Services;
+using Torrefactor.Services.CoffeeKinds;
 
 namespace Torrefactor
 {
@@ -38,8 +39,11 @@ namespace Torrefactor
                 return new MongoClient(config.MongodbConnectionString).GetDatabase(config.DatabaseName);
             });
             services.AddSingleton<CoffeeKindRepository>();
-            services.AddSingleton<CoffeeOrderRepository>();
+            services.AddSingleton<GroupCoffeeOrderRepository>();
+            services.AddSingleton<CoffeeOrderService>();
+            services.AddSingleton<CoffeeKindService>();
             services.AddSingleton<TorrefactoCoffeeProvider>();
+            services.AddSingleton<ICoffeeProvider, TorrefactoCoffeeProvider>();
             
             services.AddIdentityMongoDbProvider<ApplicationUser, ApplicationRole>(identityOptions =>
             {
