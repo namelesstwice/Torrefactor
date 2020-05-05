@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using MongoDB.Driver;
-using Torrefactor.Core.Interfaces;
 
 namespace Torrefactor.Infrastructure.DAL
 {
-    internal abstract class Repository<T> : IRepository<T>
+    internal abstract class Repository<T>
     {
         protected readonly IMongoCollection<T> Collection;
 
