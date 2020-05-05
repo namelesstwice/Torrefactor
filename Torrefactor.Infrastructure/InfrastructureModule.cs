@@ -1,6 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using Torrefactor.Core.Interfaces;
+using Torrefactor.Core.Services;
+using Torrefactor.Infrastructure.CoffeeProviders.RocketsCoffee;
 using Torrefactor.Infrastructure.CoffeeProviders.Torrefacto;
 using Torrefactor.Infrastructure.DAL;
 
@@ -19,6 +21,7 @@ namespace Torrefactor.Infrastructure
             services.AddSingleton<ICoffeeKindRepository, CoffeeKindRepository>();
             services.AddSingleton<IGroupCoffeeOrderRepository, GroupCoffeeOrderRepository>();
             services.AddSingleton<ICoffeeProvider, TorrefactoCoffeeProvider>();
+            services.AddSingleton<ICoffeeProvider, RocketsCoffeeProvider>();
         }
     }
 }

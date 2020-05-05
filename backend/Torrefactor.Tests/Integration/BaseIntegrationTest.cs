@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Torrefactor.Core;
 using Torrefactor.Core.Interfaces;
+using Torrefactor.Core.Services;
 using Torrefactor.Entities.Auth;
 using Torrefactor.Infrastructure;
 using Torrefactor.Tests.Common;
@@ -37,8 +38,13 @@ namespace Torrefactor.Tests.Integration
                         })
                     });
 
+                    var fakeCoffeeProviderSelector = A.Fake<ICoffeeProviderSelector>();
+                    A.CallTo(() => fakeCoffeeProviderSelector.SelectFor(A<GroupCoffeeOrder>._))
+                        .Returns(fakeCoffeeProvider);
+
                     services.AddSingleton(fakeCfg);
                     services.AddSingleton(fakeCoffeeProvider);
+                    services.AddSingleton(fakeCoffeeProviderSelector);
 
                     // TODO: hack, need to modify AspNetCore.Identity.Mongo
                     var userCollection = MongoDatabase.GetCollection<ApplicationUser>("Users");

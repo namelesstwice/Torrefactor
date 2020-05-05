@@ -28,20 +28,11 @@ namespace Torrefactor.Tests.Integration.Clients
             return await _client.GetAsync(GetKindsUrl()).ToApiResponse();
         }
 
-        private string GetReloadCoffeeKindsUrl()
-        {
-            return $"{_baseUrl}/reload";
-        }
+        private string GetReloadCoffeeKindsUrl() => $"{_baseUrl}/reload";
 
-        private string GetKindsUrl()
-        {
-            return _baseUrl;
-        }
+        private string GetKindsUrl() => _baseUrl;
 
-
-        private static StringContent CreateContent(object obj)
-        {
-            return new StringContent(JsonConvert.SerializeObject(obj), Encoding.UTF8, "application/json");
-        }
+        private static StringContent CreateContent(object obj) 
+            => new StringContent(JsonConvert.SerializeObject(obj), Encoding.UTF8, "application/json");
     }
 }

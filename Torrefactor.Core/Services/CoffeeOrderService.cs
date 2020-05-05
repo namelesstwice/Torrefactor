@@ -9,40 +9,64 @@ namespace Torrefactor.Core.Services
     public class CoffeeOrderService
     {
         private readonly ICoffeeKindRepository _coffeeKindRepository;
-        private readonly ICoffeeProvider _coffeeProvider;
         private readonly IGroupCoffeeOrderRepository _groupCoffeeOrderRepository;
+        private readonly ICoffeeProviderSelector _coffeeProviderSelector;
 
         public CoffeeOrderService(
             ICoffeeKindRepository coffeeKindRepository,
             IGroupCoffeeOrderRepository groupCoffeeOrderRepository,
-            ICoffeeProvider coffeeProvider)
+            ICoffeeProviderSelector coffeeProviderSelector)
         {
             _coffeeKindRepository = coffeeKindRepository;
             _groupCoffeeOrderRepository = groupCoffeeOrderRepository;
-            _coffeeProvider = coffeeProvider;
+            _coffeeProviderSelector = coffeeProviderSelector;
         }
 
         public async Task<GroupCoffeeOrder?> TryGetCurrentGroupOrder()
         {
-            return await _groupCoffeeOrderRepository.GetCurrentOrder();
+            var currentOrder =  await _groupCoffeeOrderRepository.GetCurrentOrder();
+            if (currentOrder == null)
+                return null;
+            
+            var kinds = (await _coffeeKindRepository.GetAll()).ToDictionary(p => p.Name);
+
+            foreach (var pack in currentOrder.PersonalOrders.SelectMany(o => o.Packs))
+            {
+                if (!kinds.TryGetValue(pack.CoffeeKindName, out var kind))
+                {
+                    pack.MarkAsUnavailable();
+                    continue;
+                }
+
+                if (!kind.IsAvailable)
+                {
+                    pack.MarkAsUnavailable();
+                    continue;
+                }
+
+                pack.Refresh(kind);
+            }
+
+            return currentOrder;
         }
 
-        public async Task<PersonalCoffeeOrder?> TryGetPersonalOrder(string customerName)
+        public async Task<(PersonalCoffeeOrder? Order, bool ActiveGroupOrderExists)> TryGetPersonalOrder(string customerName)
         {
             var currentGroupOrder = await _groupCoffeeOrderRepository.GetCurrentOrder();
-            if (currentGroupOrder == null)
-                return null;
-
-            return currentGroupOrder.TryGetPersonalOrder(customerName) ?? new PersonalCoffeeOrder(customerName);
+            return currentGroupOrder switch
+            {
+                null => (null, false),
+                _ => (currentGroupOrder.TryGetPersonalOrder(customerName), true)
+            };
         }
 
-        public async Task CreateNewGroupOrder()
+        public async Task CreateNewGroupOrder(string providerId)
         {
             var currentGroupOrder = await _groupCoffeeOrderRepository.GetCurrentOrder();
             if (currentGroupOrder != null)
                 throw new CoffeeOrderException("Can't create new order cause there is an active order");
 
-            currentGroupOrder = new GroupCoffeeOrder();
+            currentGroupOrder = new GroupCoffeeOrder(providerId);
             await _groupCoffeeOrderRepository.Insert(new[] {currentGroupOrder});
         }
 
@@ -76,17 +100,19 @@ namespace Torrefactor.Core.Services
             if (currentGroupOrder == null)
                 throw new CoffeeOrderException("No group order available");
 
+            var coffeeProvider = _coffeeProviderSelector.SelectFor(currentGroupOrder);
+            
             try
             {
                 currentGroupOrder.StartSending();
                 await _groupCoffeeOrderRepository.Update(currentGroupOrder);
                 currentGroupOrder = await _groupCoffeeOrderRepository.GetCurrentOrder();
 
-                await _coffeeProvider.Authenticate();
-                await _coffeeProvider.CleanupBasket();
+                await coffeeProvider.Authenticate();
+                await coffeeProvider.CleanupBasket();
 
                 await foreach (var order in GetCoffeePacksToSend(currentGroupOrder!))
-                    await _coffeeProvider.AddToBasket(order.Kind, order.Pack, order.Count);
+                    await coffeeProvider.AddToBasket(order.Kind, order.Pack, order.Count);
 
                 currentGroupOrder!.MarkAsSent();
                 await _groupCoffeeOrderRepository.Update(currentGroupOrder);

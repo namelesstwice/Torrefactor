@@ -20,12 +20,14 @@ namespace Torrefactor.Infrastructure.CoffeeProviders.Torrefacto
         {
             _config = config;
         }
+        
+        public string Id { get; } = "TF";
 
         public async Task<IReadOnlyCollection<CoffeeKind>> GetCoffeeKinds()
         {
             var request = WebRequest.CreateHttp(new Uri(getFullUrl("catalog/roasted/")));
             var response = await request.GetResponseAsync();
-            return CoffeeListPageParser.Parse(response.GetResponseStream());
+            return TorrefactorCoffeeListPageParser.Parse(response.GetResponseStream());
         }
 
         public async Task Authenticate()

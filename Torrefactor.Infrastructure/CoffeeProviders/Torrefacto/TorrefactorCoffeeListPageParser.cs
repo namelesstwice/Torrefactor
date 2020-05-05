@@ -7,7 +7,7 @@ using Torrefactor.Core;
 
 namespace Torrefactor.Infrastructure.CoffeeProviders.Torrefacto
 {
-    internal static class CoffeeListPageParser
+    internal static class TorrefactorCoffeeListPageParser
     {
         public static IReadOnlyCollection<CoffeeKind> Parse(Stream stream)
         {

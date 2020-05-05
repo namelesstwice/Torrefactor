@@ -19,5 +19,10 @@
     <ItemGroup>
       <ProjectReference Include="..\Torrefactor\Torrefactor.csproj" />
     </ItemGroup>
+    
+    <ItemGroup>
+      <None Remove="Data\rockets.coffee.html" />
+      <EmbeddedResource Include="Data\rockets.coffee.html" />
+    </ItemGroup>
 
 </Project>

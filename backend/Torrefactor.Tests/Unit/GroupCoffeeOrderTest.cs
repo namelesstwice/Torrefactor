@@ -11,7 +11,7 @@ namespace Torrefactor.Tests.Unit
         [Test]
         public void Should_not_allow_to_add_or_remove_pack_when_sending_in_progress([Values(true, false)] bool isAdd)
         {
-            var order = new GroupCoffeeOrder();
+            var order = new GroupCoffeeOrder("TF");
             order.StartSending();
             
             Assert.Throws<InvalidOperationException>(() => 
@@ -21,7 +21,7 @@ namespace Torrefactor.Tests.Unit
         [Test]
         public void Should_not_allow_to_add_or_remove_pack_when_sending_is_completed([Values(true, false)] bool isAdd)
         {
-            var order = new GroupCoffeeOrder();
+            var order = new GroupCoffeeOrder("TF");
             order.StartSending();
             order.MarkAsSent();
             
@@ -32,7 +32,7 @@ namespace Torrefactor.Tests.Unit
         [Test]
         public void Should_not_allow_to_add_or_remove_pack_when_order_is_canceled([Values(true, false)] bool isAdd)
         {
-            var order = new GroupCoffeeOrder();
+            var order = new GroupCoffeeOrder("TF");
             order.Cancel();
             
             Assert.Throws<InvalidOperationException>(() => 
@@ -42,7 +42,7 @@ namespace Torrefactor.Tests.Unit
         [Test]
         public void Should_allow_to_add_pack_when_order_is_created_or_send_failed([Values(true, false)] bool isSendFailed)
         {
-            var order = new GroupCoffeeOrder();
+            var order = new GroupCoffeeOrder("TF");
 
             if (isSendFailed)
             {
@@ -58,7 +58,7 @@ namespace Torrefactor.Tests.Unit
         [Test]
         public void Should_allow_to_remove_pack_when_order_is_created_or_send_failed([Values(true, false)] bool isSendFailed)
         {
-            var order = new GroupCoffeeOrder();
+            var order = new GroupCoffeeOrder("TF");
 
             if (isSendFailed)
             {
@@ -78,7 +78,7 @@ namespace Torrefactor.Tests.Unit
         [TestCase(GroupCoffeeOrderState.SendFailed)]
         public void Should_not_allow_to_change_state_of_sent_order(GroupCoffeeOrderState targetState)
         {
-            var order = new GroupCoffeeOrder();
+            var order = new GroupCoffeeOrder("TF");
             order.StartSending();
             order.MarkAsSent();
 
@@ -104,7 +104,7 @@ namespace Torrefactor.Tests.Unit
         [Test]
         public void Should_group_packs_by_coffee_kind_and_weight_when_counting_unique_packs_count()
         {
-            var order = new GroupCoffeeOrder();
+            var order = new GroupCoffeeOrder("TF");
             
             AddOrRemove(order, true);
             AddOrRemove(order, true);

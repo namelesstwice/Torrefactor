@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -26,44 +27,17 @@ namespace Torrefactor.Controllers
 
         [HttpGet("")]
         [Authorize(Roles = "admin")]
-        public async Task<IEnumerable> GetAllOrders()
+        public async Task<GroupCoffeeOrderModel> GetCurrentGroupOrder()
         {
             var currentOrder = await _coffeeOrderService.TryGetCurrentGroupOrder();
             if (currentOrder == null)
-                return Enumerable.Empty<object>();
+                return new GroupCoffeeOrderModel(false);
 
-            var kinds = (await _coffeeKindService.GetAll()).ToDictionary(p => p.Name);
-
-            foreach (var pack in currentOrder.PersonalOrders.SelectMany(o => o.Packs))
-            {
-                if (!kinds.TryGetValue(pack.CoffeeKindName, out var kind))
-                {
-                    pack.MarkAsUnavailable();
-                    continue;
-                }
-
-                if (!kind.IsAvailable)
-                {
-                    pack.MarkAsUnavailable();
-                    continue;
-                }
-
-                pack.Refresh(kind);
-            }
-
-            return currentOrder.PersonalOrders
+            var personalOrders = currentOrder.PersonalOrders
                 .Where(o => o.Packs.Any())
-                .Select(o => new
-                {
-                    Name = o.Username,
-                    Orders = o.GetUniquePacksCount().Select(_ => new CoffeePackModel(_.Pack, _.Count)),
-                    OverallState = o.Packs.Any(p => p.State == CoffeePackState.Unavailable)
-                        ? CoffeePackState.Unavailable
-                        : o.Packs.Any(p => p.State == CoffeePackState.PriceChanged)
-                            ? CoffeePackState.PriceChanged
-                            : CoffeePackState.Available,
-                    Price = o.Packs.Sum(_ => _.Price)
-                });
+                .Select(o => new PersonalCoffeeOrderModel(o));
+            
+            return new GroupCoffeeOrderModel(true, personalOrders);
         }
 
         [HttpPost("current-user/{coffeeName}/{weight}")]
@@ -85,12 +59,12 @@ namespace Torrefactor.Controllers
             await _coffeeOrderService.SendToCoffeeProvider();
         }
 
-
         [HttpPost("")]
         [Authorize(Roles = "admin")]
-        public async Task CreateNewGroupOrder()
+        public async Task CreateNewGroupOrder([FromQuery] string? providerId)
         {
-            await _coffeeOrderService.CreateNewGroupOrder();
+            await _coffeeOrderService.CreateNewGroupOrder(
+                providerId ?? throw new ArgumentNullException(nameof(providerId)));
         }
     }
 }

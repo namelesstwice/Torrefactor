@@ -16,8 +16,8 @@ namespace Torrefactor.Tests.Integration
             var connection = new Connection(CreateServer());
             await connection.AuthClient.Register("admin@blah.com", "123", "The Admin");
             await connection.AuthClient.SignIn("admin@blah.com", "123");
+            await connection.CoffeeOrderClient.CreateNewGroupOrder("TF");
             await connection.CoffeeKindClient.ReloadCoffeeKinds();
-            await connection.CoffeeOrderClient.CreateNewGroupOrder();
             return connection;
         }
 
@@ -27,11 +27,11 @@ namespace Torrefactor.Tests.Integration
             var connection = await SetupServer();
 
             await connection.CoffeeOrderClient.AddPackToOrder("123", 123);
-            var kinds = (await connection.CoffeeKindClient.GetKinds()).Model<IEnumerable<CoffeeKindModel>>();
+            var model = (await connection.CoffeeKindClient.GetKinds()).Model<CoffeeKindPageModel>();
 
             CollectionAssert.AreEqual(
                 new[] {1},
-                kinds.Select(_ => _.Packs.Single(p => p.Weight == 123).Count));
+                model.CoffeeKinds.Select(_ => _.Packs.Single(p => p.Weight == 123).Count));
         }
 
         [Test]
@@ -52,11 +52,11 @@ namespace Torrefactor.Tests.Integration
 
             await connection.CoffeeOrderClient.AddPackToOrder("123", 123);
             await connection.CoffeeOrderClient.RemovePackFromOrder("123", 123);
-            var kinds = (await connection.CoffeeKindClient.GetKinds()).Model<IEnumerable<CoffeeKindModel>>();
+            var model = (await connection.CoffeeKindClient.GetKinds()).Model<CoffeeKindPageModel>();
 
             CollectionAssert.AreEqual(
                 new[] {0},
-                kinds.Select(_ => _.Packs.Single(p => p.Weight == 123).Count));
+                model.CoffeeKinds.Select(_ => _.Packs.Single(p => p.Weight == 123).Count));
         }
     }
 }

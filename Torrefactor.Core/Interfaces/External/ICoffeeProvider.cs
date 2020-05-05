@@ -5,6 +5,7 @@ namespace Torrefactor.Core.Interfaces
 {
     public interface ICoffeeProvider
     {
+        string Id { get; }
         Task<IReadOnlyCollection<CoffeeKind>> GetCoffeeKinds();
         Task Authenticate();
         Task CleanupBasket();
