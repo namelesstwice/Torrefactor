@@ -35,7 +35,7 @@ namespace Torrefactor.Core.Services
                         return allKindsWithSameName[0];
 
                     var availableCoffeeKinds = allKindsWithSameName
-                        .Where(k => k is AvailableCoffeeKind)
+                        .Where(k => k.IsAvailable)
                         .ToArray();
 
                     if (availableCoffeeKinds.Length == 1)

@@ -43,7 +43,7 @@ namespace Torrefactor.Infrastructure.CoffeeProviders.Torrefacto
             return _client.UploadStringTaskAsync(getFullUrl("include/bas_delete.php"), "POST", "");
         }
 
-        public Task AddToBasket(AvailableCoffeeKind kind, CoffeePack pack, int count)
+        public Task AddToBasket(CoffeeKind kind, CoffeePack pack, int count)
         {
             var torrefactoId = kind.GetActualExternalId(pack);
             var data = new NameValueCollection

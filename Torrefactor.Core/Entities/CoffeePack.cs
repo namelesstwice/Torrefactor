@@ -50,7 +50,7 @@ namespace Torrefactor.Core
             return Weight == other.Weight && string.Equals(CoffeeKindName, other.CoffeeKindName);
         }
 
-        public void Refresh(AvailableCoffeeKind coffeeKind)
+        public void Refresh(CoffeeKind coffeeKind)
         {
             if (coffeeKind.Name != CoffeeKindName)
                 throw new ArgumentException("Coffee kind name must match.");

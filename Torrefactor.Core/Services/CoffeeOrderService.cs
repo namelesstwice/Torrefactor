@@ -98,11 +98,9 @@ namespace Torrefactor.Core.Services
             }
         }
 
-        private async IAsyncEnumerable<(AvailableCoffeeKind Kind, CoffeePack Pack, int Count)> GetCoffeePacksToSend(
-            GroupCoffeeOrder order)
+        private async IAsyncEnumerable<(CoffeeKind Kind, CoffeePack Pack, int Count)> GetCoffeePacksToSend(GroupCoffeeOrder order)
         {
             var coffeeKinds = (await _coffeeKindRepository.GetAll())
-                .OfType<AvailableCoffeeKind>()
                 .ToDictionary(_ => _.Name);
 
             var packsByCoffeeKind =
@@ -124,12 +122,11 @@ namespace Torrefactor.Core.Services
             var coffeeKind = await _coffeeKindRepository.Get(coffeeName);
             if (coffeeKind == null)
                 throw new ArgumentException($"Coffee kind {coffeeName} does not exist");
-
-            var availableCoffeeKind = coffeeKind as AvailableCoffeeKind;
-            if (availableCoffeeKind == null)
+            
+            if (!coffeeKind.IsAvailable)
                 throw new ArgumentException();
 
-            var desiredPack = availableCoffeeKind
+            var desiredPack = coffeeKind
                 .AvailablePacks
                 .SingleOrDefault(p => p.Weight == weight);
 

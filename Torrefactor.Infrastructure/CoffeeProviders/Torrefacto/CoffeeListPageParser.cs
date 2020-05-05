@@ -22,9 +22,7 @@ namespace Torrefactor.Infrastructure.CoffeeProviders.Torrefacto
                         .Single(_ => hasAttribute(_, "data-prop-name"))
                         .Attributes["data-prop-name"].Value
                     let isNotAvailable = div.Descendants().Any(_ => hasClass(_, "button-disabled"))
-                    select isNotAvailable
-                        ? new CoffeeKind(name)
-                        : new AvailableCoffeeKind(name, packs)
+                    select new CoffeeKind(name, isNotAvailable, packs)
                 )
                 .ToList();
         }
