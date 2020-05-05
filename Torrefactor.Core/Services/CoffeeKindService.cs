@@ -9,14 +9,17 @@ namespace Torrefactor.Core.Services
     public class CoffeeKindService
     {
         private readonly ICoffeeKindRepository _coffeeKindRepository;
-        private readonly ICoffeeProvider _coffeeProvider;
+        private readonly IGroupCoffeeOrderRepository _groupCoffeeOrderRepository;
+        private readonly ICoffeeProviderSelector _coffeeProviderSelector;
 
         public CoffeeKindService(
-            ICoffeeProvider coffeeProvider,
-            ICoffeeKindRepository coffeeKindRepository)
+            ICoffeeKindRepository coffeeKindRepository, 
+            IGroupCoffeeOrderRepository groupCoffeeOrderRepository,
+            ICoffeeProviderSelector coffeeProviderSelector)
         {
-            _coffeeProvider = coffeeProvider;
             _coffeeKindRepository = coffeeKindRepository;
+            _groupCoffeeOrderRepository = groupCoffeeOrderRepository;
+            _coffeeProviderSelector = coffeeProviderSelector;
         }
 
         public Task<IReadOnlyCollection<CoffeeKind>> GetAll()
@@ -26,7 +29,13 @@ namespace Torrefactor.Core.Services
 
         public async Task ReloadCoffeeKinds()
         {
-            var coffeeKinds = (await _coffeeProvider.GetCoffeeKinds())
+            var groupOrder = await _groupCoffeeOrderRepository.GetCurrentOrder();
+            if (groupOrder == null)
+                throw new CoffeeOrderException("Can't reload coffee kinds, active order not found");
+
+            var coffeeProvider = _coffeeProviderSelector.SelectFor(groupOrder);
+            
+            var coffeeKinds = (await coffeeProvider.GetCoffeeKinds())
                 .ToLookup(k => k.Name)
                 .Select(group =>
                 {

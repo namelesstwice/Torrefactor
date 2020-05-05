@@ -25,25 +25,21 @@ namespace Torrefactor.Controllers
         }
 
         [HttpGet("")]
-        public async Task<IEnumerable<CoffeeKindModel>> Get()
+        public async Task<CoffeeKindPageModel> Get()
         {
             var coffeeKinds = await _coffeeKindService.GetAll();
-            var userOrder = await _coffeeOrderService.TryGetPersonalOrder(User.Identity.Name!);
+            var (userOrder, groupOrderExists) = await _coffeeOrderService.TryGetPersonalOrder(User.Identity.Name!);
 
-            return coffeeKinds.Select(kind =>
-            {
-                var packs = kind.AvailablePacks
-                    .Select(pack => new CoffeePackModel(pack, userOrder?.GetCount(kind, pack.Weight) ?? 0))
-                    .OrderBy(_ => _.Weight)
-                    .ToArray();
-
-                return new CoffeeKindModel(
-                    kind.Name,
-                    packs,
-                    kind.IsAvailable,
-                    packs?.First(),
-                    packs?.Last());
-            });
+            var kinds = 
+                from k in coffeeKinds
+                let packs = (
+                    from p in k.AvailablePacks
+                    orderby p.Weight
+                    select new CoffeePackModel(p, userOrder?.GetCount(k, p.Weight) ?? 0))
+                    .ToArray()
+                select new CoffeeKindModel(k.Name, packs, k.IsAvailable, packs?.First(), packs?.Last());
+            
+            return new CoffeeKindPageModel(groupOrderExists, kinds);
         }
 
         [HttpPost("reload")]

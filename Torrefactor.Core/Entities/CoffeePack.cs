@@ -29,6 +29,9 @@ namespace Torrefactor.Core
         [BsonRequired]
         public string ExternalId { get; private set; }
 
+        [BsonIgnore]
+        public decimal PricePer100g => Price / (decimal) Weight * 100;
+
         public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj)) return false;

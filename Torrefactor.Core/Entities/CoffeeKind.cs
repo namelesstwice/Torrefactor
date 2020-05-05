@@ -25,8 +25,8 @@ namespace Torrefactor.Core
         public CoffeeKind(string name, bool isAvailable, IEnumerable<CoffeePack.Builder> coffeePacks)
         {
             Name = name;
-            IsAvailable = isAvailable;
             _availablePacks = coffeePacks.Select(p => p.AppendTo(this).Finish()).ToList();
+            IsAvailable = isAvailable && _availablePacks.Any();
         }
         
         public string GetActualExternalId(CoffeePack pack)
