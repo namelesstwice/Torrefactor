@@ -7,120 +7,117 @@ using Docker.DotNet.Models;
 
 namespace Torrefactor.Tests.Common
 {
-	public abstract class DockerContainer<TClient>
-	{
-		public async Task Run()
-		{
-			if (_containerId != null)
-				throw new InvalidOperationException("Container is already running");
+    public abstract class DockerContainer<TClient>
+    {
+        private string _containerId;
 
-			using var client = new DockerClientConfiguration(new Uri("npipe://./pipe/docker_engine")).CreateClient();
-			var targetImage = await PullImage(client);
-			var (container, hostPort) = await StartContainer(client, targetImage);
-			(_containerId, HostPort) = (container.ID, hostPort);
-			await CheckIfContainerRunning(client, container);
-		}
+        protected abstract string Image { get; }
+        protected abstract string Tag { get; }
+        protected abstract string ContainerPort { get; }
+        protected int HostPort { get; private set; }
 
-		public async Task StopAndRemove()
-		{
-			if (_containerId == null)
-				throw new InvalidOperationException("Container is not started");
+        public async Task Run()
+        {
+            if (_containerId != null)
+                throw new InvalidOperationException("Container is already running");
 
-			using var client = new DockerClientConfiguration(new Uri("npipe://./pipe/docker_engine")).CreateClient();
-			await client.Containers.StopContainerAsync(_containerId, new ContainerStopParameters());
-			await client.Containers.RemoveContainerAsync(_containerId, new ContainerRemoveParameters());
-			_containerId = null;
-		}
+            using var client = new DockerClientConfiguration(new Uri("npipe://./pipe/docker_engine")).CreateClient();
+            var targetImage = await PullImage(client);
+            var (container, hostPort) = await StartContainer(client, targetImage);
+            (_containerId, HostPort) = (container.ID, hostPort);
+            await CheckIfContainerRunning(client, container);
+        }
 
-		public TClient Connect()
-		{
-			if (_containerId == null)
-				throw new InvalidOperationException("Container is not started");
+        public async Task StopAndRemove()
+        {
+            if (_containerId == null)
+                throw new InvalidOperationException("Container is not started");
 
-			return CreateConnection();
-		}
+            using var client = new DockerClientConfiguration(new Uri("npipe://./pipe/docker_engine")).CreateClient();
+            await client.Containers.StopContainerAsync(_containerId, new ContainerStopParameters());
+            await client.Containers.RemoveContainerAsync(_containerId, new ContainerRemoveParameters());
+            _containerId = null;
+        }
 
-		private static async Task CheckIfContainerRunning(DockerClient client, CreateContainerResponse container)
-		{
-			var retryCount = 200;
-			var containerState = await client.Containers.InspectContainerAsync(container.ID);
-			while (!containerState.State.Running && retryCount-- > 0)
-			{
-				await Task.Delay(50);
-				containerState = await client.Containers.InspectContainerAsync(container.ID);
-			}
-		}
+        public TClient Connect()
+        {
+            if (_containerId == null)
+                throw new InvalidOperationException("Container is not started");
 
-		private async Task<(CreateContainerResponse, int)> StartContainer(DockerClient client, ImagesListResponse targetImage)
-		{
-			var hostPort= new Random((int) DateTime.UtcNow.Ticks).Next(10000, 12000);
+            return CreateConnection();
+        }
 
-			var container = await client.Containers.CreateContainerAsync(new CreateContainerParameters
-			{
-				ExposedPorts = new Dictionary<string, EmptyStruct>
-				{
-					[ContainerPort] = new EmptyStruct()
-				},
-				HostConfig = new HostConfig
-				{
-					PortBindings = new Dictionary<string, IList<PortBinding>>
-					{
-						[ContainerPort] = new List<PortBinding>
-							{new PortBinding {HostIP = "0.0.0.0", HostPort = $"{hostPort}"} }
-					}
-				},
-				Image = $"{Image}:{Tag}",
-			});
+        private static async Task CheckIfContainerRunning(DockerClient client, CreateContainerResponse container)
+        {
+            var retryCount = 200;
+            var containerState = await client.Containers.InspectContainerAsync(container.ID);
+            while (!containerState.State.Running && retryCount-- > 0)
+            {
+                await Task.Delay(50);
+                containerState = await client.Containers.InspectContainerAsync(container.ID);
+            }
+        }
 
-			var isStarted = await client.Containers.StartContainerAsync(container.ID, new ContainerStartParameters()
-			{
-				DetachKeys = $"d={targetImage}"
-			});
+        private async Task<(CreateContainerResponse, int)> StartContainer(DockerClient client,
+            ImagesListResponse targetImage)
+        {
+            var hostPort = new Random((int) DateTime.UtcNow.Ticks).Next(10000, 12000);
 
-			if (!isStarted)
-			{
-				throw new Exception($"Could not start container: {container.ID}");
-			}
+            var container = await client.Containers.CreateContainerAsync(new CreateContainerParameters
+            {
+                ExposedPorts = new Dictionary<string, EmptyStruct>
+                {
+                    [ContainerPort] = new EmptyStruct()
+                },
+                HostConfig = new HostConfig
+                {
+                    PortBindings = new Dictionary<string, IList<PortBinding>>
+                    {
+                        [ContainerPort] = new List<PortBinding>
+                            {new PortBinding {HostIP = "0.0.0.0", HostPort = $"{hostPort}"}}
+                    }
+                },
+                Image = $"{Image}:{Tag}"
+            });
 
-			return (container, hostPort);
-		}
+            var isStarted = await client.Containers.StartContainerAsync(container.ID, new ContainerStartParameters
+            {
+                DetachKeys = $"d={targetImage}"
+            });
 
-		private async Task<ImagesListResponse> PullImage(DockerClient client)
-		{
-			var image = await GetLocalImage(client);
-			if (image != null)
-				return image;
+            if (!isStarted) throw new Exception($"Could not start container: {container.ID}");
 
-			await client.Images.CreateImageAsync(
-				new ImagesCreateParameters
-				{
-					FromImage = Image,
-					Tag = Tag,
-				},
-				null,
-				new Progress<JSONMessage>());
+            return (container, hostPort);
+        }
 
-			return await GetLocalImage(client);
-		}
+        private async Task<ImagesListResponse> PullImage(DockerClient client)
+        {
+            var image = await GetLocalImage(client);
+            if (image != null)
+                return image;
 
-		private async Task<ImagesListResponse> GetLocalImage(DockerClient client)
-		{
-			var images = await client.Images.ListImagesAsync(new ImagesListParameters
-			{
-				MatchName = $"{Image}:{Tag}",
-			});
+            await client.Images.CreateImageAsync(
+                new ImagesCreateParameters
+                {
+                    FromImage = Image,
+                    Tag = Tag
+                },
+                null,
+                new Progress<JSONMessage>());
 
-			return images.SingleOrDefault();
-		}
+            return await GetLocalImage(client);
+        }
 
-		protected abstract TClient CreateConnection();
+        private async Task<ImagesListResponse> GetLocalImage(DockerClient client)
+        {
+            var images = await client.Images.ListImagesAsync(new ImagesListParameters
+            {
+                MatchName = $"{Image}:{Tag}"
+            });
 
-		protected abstract string Image { get; }
-		protected abstract string Tag { get; }
-		protected abstract string ContainerPort { get; }
-		protected int HostPort { get; private set; }
+            return images.SingleOrDefault();
+        }
 
-		private string _containerId;
-		
-	}
+        protected abstract TClient CreateConnection();
+    }
 }

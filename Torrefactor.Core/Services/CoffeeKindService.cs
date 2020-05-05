@@ -2,25 +2,27 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Torrefactor.DAL;
-using Torrefactor.Models;
+using Torrefactor.Core.Interfaces;
 
-namespace Torrefactor.Services.CoffeeKinds
+namespace Torrefactor.Core.Services
 {
     public class CoffeeKindService
     {
+        private readonly ICoffeeKindRepository _coffeeKindRepository;
         private readonly ICoffeeProvider _coffeeProvider;
-        private readonly CoffeeKindRepository _coffeeKindRepository;
 
         public CoffeeKindService(
             ICoffeeProvider coffeeProvider,
-            CoffeeKindRepository coffeeKindRepository)
+            ICoffeeKindRepository coffeeKindRepository)
         {
             _coffeeProvider = coffeeProvider;
             _coffeeKindRepository = coffeeKindRepository;
         }
 
-        public Task<IReadOnlyCollection<CoffeeKind>> GetAll() => _coffeeKindRepository.GetAll();
+        public Task<IReadOnlyCollection<CoffeeKind>> GetAll()
+        {
+            return _coffeeKindRepository.GetAll();
+        }
 
         public async Task ReloadCoffeeKinds()
         {

@@ -1,13 +1,19 @@
 ﻿using System.Linq;
 using System.Security.Principal;
-using Torrefactor.Models;
+using Torrefactor.Infrastructure;
 
-namespace Torrefactor.Services
+namespace Torrefactor.Utils
 {
-	public static class AuthExtensions
-	{
-		public static bool IsAdminEmail(string? email, Config cfg) => cfg.AdminEmails.Any(_ => _ == email);
+    public static class AuthExtensions
+    {
+        public static bool IsAdminEmail(string? email, Config cfg)
+        {
+            return cfg.AdminEmails.Any(_ => _ == email);
+        }
 
-		public static bool IsAdmin(this IPrincipal principal) => principal.IsInRole("admin");
-	}
+        public static bool IsAdmin(this IPrincipal principal)
+        {
+            return principal.IsInRole("admin");
+        }
+    }
 }

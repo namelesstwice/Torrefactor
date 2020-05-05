@@ -1,18 +1,14 @@
-using System;
 using System.Collections.Generic;
-using System.Net.Http;
-using System.Text;
-using AspNetCore.Identity.Mongo;
 using AspNetCore.Identity.Mongo.Stores;
+using FakeItEasy;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
-using MongoDB.Driver;
-using Newtonsoft.Json;
-using Torrefactor.Models;
-using Torrefactor.Models.Auth;
-using Torrefactor.Services;
+using Torrefactor.Core;
+using Torrefactor.Core.Interfaces;
+using Torrefactor.Entities.Auth;
+using Torrefactor.Infrastructure;
 using Torrefactor.Tests.Common;
 
 namespace Torrefactor.Tests.Integration
@@ -28,11 +24,21 @@ namespace Torrefactor.Tests.Integration
                     {
                         MongodbConnectionString = ConnectionString,
                         DatabaseName = MongoDatabase.DatabaseNamespace.DatabaseName,
-                        AdminEmails = new List<string> { "admin@blah.com" },
+                        AdminEmails = new List<string> {"admin@blah.com"},
                         Secret = "a very secret string that is definitely not used in production"
                     };
-                    
+
+                    var fakeCoffeeProvider = A.Fake<ICoffeeProvider>();
+                    A.CallTo(() => fakeCoffeeProvider.GetCoffeeKinds()).Returns(new[]
+                    {
+                        new AvailableCoffeeKind("123", new[]
+                        {
+                            CoffeePack.Create(123, 123).SetId("123")
+                        })
+                    });
+
                     services.AddSingleton(fakeCfg);
+                    services.AddSingleton(fakeCoffeeProvider);
 
                     // TODO: hack, need to modify AspNetCore.Identity.Mongo
                     var userCollection = MongoDatabase.GetCollection<ApplicationUser>("Users");
@@ -44,7 +50,7 @@ namespace Torrefactor.Tests.Integration
                     services.AddTransient<IUserStore<ApplicationUser>>(
                         p => new UserStore<ApplicationUser, ApplicationRole>(
                             userCollection,
-                            p.GetService<IRoleStore<ApplicationRole>>(), 
+                            p.GetService<IRoleStore<ApplicationRole>>(),
                             p.GetService<ILookupNormalizer>()));
                 })
                 .UseStartup<Startup>();
@@ -53,6 +59,5 @@ namespace Torrefactor.Tests.Integration
 
             return testServer;
         }
-
     }
 }

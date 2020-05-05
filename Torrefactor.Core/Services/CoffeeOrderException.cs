@@ -1,6 +1,6 @@
 using System;
 
-namespace Torrefactor.Services
+namespace Torrefactor.Core.Services
 {
     public class CoffeeOrderException : Exception
     {

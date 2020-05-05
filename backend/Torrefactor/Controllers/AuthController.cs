@@ -9,148 +9,148 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using Torrefactor.Models;
+using Torrefactor.Entities.Auth;
+using Torrefactor.Infrastructure;
 using Torrefactor.Models.Auth;
-using Torrefactor.Services;
+using Torrefactor.Utils;
 
 namespace Torrefactor.Controllers
 {
-	[Route("api/auth")]
-	public class AuthController : Controller
-	{
-		public AuthController(
-			SignInManager<ApplicationUser> signInManager, 
-			UserManager<ApplicationUser> userManager,
-			Config config)
-		{
-			_signInManager = signInManager;
-			_userManager = userManager;
-			_config = config;
-		}
+    [Route("api/auth")]
+    public class AuthController : Controller
+    {
+        private readonly Config _config;
+        private readonly SignInManager<ApplicationUser> _signInManager;
 
-		[Route("users/current")]
-		[HttpGet]
-		public async Task<UserModel?> GetCurrentUser()
-		{
-			if (!User.Identity.IsAuthenticated)
-				return null;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-			var user = await _userManager.FindByEmailAsync(User.Identity.Name);
-			return new UserModel(User.IsAdmin(), user.DisplayName, user.Email, user.Id);
-		}
+        public AuthController(
+            SignInManager<ApplicationUser> signInManager,
+            UserManager<ApplicationUser> userManager,
+            Config config)
+        {
+            _signInManager = signInManager;
+            _userManager = userManager;
+            _config = config;
+        }
 
-		[Route("sign-in")]
-		[HttpPost]
-		public async Task<ActionResult> SignIn([FromBody] SignInModel model)
-		{
-			var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, true, false);
+        [Route("users/current")]
+        [HttpGet]
+        public async Task<UserModel?> GetCurrentUser()
+        {
+            if (!User.Identity.IsAuthenticated)
+                return null;
 
-			if (!result.Succeeded)
-			{
-				return result.IsNotAllowed
-					? Unauthorized(new {Success = false, IsNotApproved = true})
-					: Unauthorized(new {Success = false});
-			}
+            var user = await _userManager.FindByEmailAsync(User.Identity.Name);
+            return new UserModel(User.IsAdmin(), user.DisplayName, user.Email, user.Id);
+        }
 
-			var user = await _userManager.FindByEmailAsync(model.Email);
-			var token = GenerateJwtToken(user.Email, user);
-			
-			return Ok(new
-			{
-				Success = true,
-				AccessToken = token
-			});
-		}
-		
-		[Route("sign-out")]
-		[HttpPost]
-		public async Task SignOut()
-		{
-			await _signInManager.SignOutAsync();
-		}
+        [Route("sign-in")]
+        [HttpPost]
+        public async Task<ActionResult> SignIn([FromBody] SignInModel model)
+        {
+            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, true, false);
 
-		[Route("users/not-confirmed")]
-		[HttpGet, Authorize(Roles = "admin")]
-		public IReadOnlyCollection<UserModel> GetPendingInviteRequests()
-		{
-			return _userManager.Users
-				.Where(_ => !_.EmailConfirmed)
-				.Select(u => new UserModel(false, u.DisplayName, u.Email, u.Id))
-				.ToList();
-		}
+            if (!result.Succeeded)
+                return result.IsNotAllowed
+                    ? Unauthorized(new {Success = false, IsNotApproved = true})
+                    : Unauthorized(new {Success = false});
 
-		[Route("users/{id}/confirmation-state")]
-		[HttpPut, Authorize(Roles = "admin")]
-		public async Task ApproveOrDecline(string id, bool isApproved)
-		{
-			var user = await _userManager.FindByIdAsync(id);
-			if (await _userManager.IsEmailConfirmedAsync(user))
-				throw new InvalidOperationException("User is already confirmed");
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            var token = GenerateJwtToken(user.Email, user);
 
-			if (!isApproved)
-			{
-				await _userManager.DeleteAsync(user);
-				return;
-			}
+            return Ok(new
+            {
+                Success = true,
+                AccessToken = token
+            });
+        }
 
-			var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-			await _userManager.ConfirmEmailAsync(user, token);
-		}
+        [Route("sign-out")]
+        [HttpPost]
+        public async Task SignOut()
+        {
+            await _signInManager.SignOutAsync();
+        }
 
-		[Route("register")]
-		[HttpPost]
-		public async Task<ActionResult> Register([FromBody] RegistrationModel? model)
-		{
-			if (model == null)
-				throw new ArgumentNullException(nameof(model));
-			
-			var isAdmin = AuthExtensions.IsAdminEmail(model.Email, _config);
-			
-			var result = await _userManager.CreateAsync(
-				new ApplicationUser
-				{
-					UserName = model.Email,
-					Email = model.Email,
-					DisplayName = model.Name, 
-					EmailConfirmed = isAdmin,
-					Roles = isAdmin ? new List<string> { "admin" } : new List<string>()
-				},
-				model.Password);
+        [Route("users/not-confirmed")]
+        [HttpGet]
+        [Authorize(Roles = "admin")]
+        public IReadOnlyCollection<UserModel> GetPendingInviteRequests()
+        {
+            return _userManager.Users
+                .Where(_ => !_.EmailConfirmed)
+                .Select(u => new UserModel(false, u.DisplayName, u.Email, u.Id))
+                .ToList();
+        }
 
-			if (!result.Succeeded)
-			{
-				return BadRequest(new
-				{
-					result.Errors
-				});
-			}
+        [Route("users/{id}/confirmation-state")]
+        [HttpPut]
+        [Authorize(Roles = "admin")]
+        public async Task ApproveOrDecline(string id, bool isApproved)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (await _userManager.IsEmailConfirmedAsync(user))
+                throw new InvalidOperationException("User is already confirmed");
 
-			return Ok();
-		}
+            if (!isApproved)
+            {
+                await _userManager.DeleteAsync(user);
+                return;
+            }
 
-		private string GenerateJwtToken(string email, ApplicationUser user)
-		{
-			var claims = new List<Claim>();
-			claims.Add(new Claim(ClaimTypes.Name, user.UserName));
-			claims.AddRange(user.Roles.Select(role => new Claim(ClaimTypes.Role, role)));
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            await _userManager.ConfirmEmailAsync(user, token);
+        }
 
-			var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config.Secret));
-			var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-			var expires = DateTime.Now.AddDays(30);
+        [Route("register")]
+        [HttpPost]
+        public async Task<ActionResult> Register([FromBody] RegistrationModel? model)
+        {
+            if (model == null)
+                throw new ArgumentNullException(nameof(model));
 
-			var token = new JwtSecurityToken(
-				null,
-				null,
-				claims,
-				expires: expires,
-				signingCredentials: creds
-			);
+            var isAdmin = AuthExtensions.IsAdminEmail(model.Email, _config);
 
-			return new JwtSecurityTokenHandler().WriteToken(token);
-		}
-		
-		private readonly UserManager<ApplicationUser> _userManager;
-		private readonly SignInManager<ApplicationUser> _signInManager;
-		private readonly Config _config;
-	}
+            var result = await _userManager.CreateAsync(
+                new ApplicationUser
+                {
+                    UserName = model.Email,
+                    Email = model.Email,
+                    DisplayName = model.Name,
+                    EmailConfirmed = isAdmin,
+                    Roles = isAdmin ? new List<string> {"admin"} : new List<string>()
+                },
+                model.Password);
+
+            if (!result.Succeeded)
+                return BadRequest(new
+                {
+                    result.Errors
+                });
+
+            return Ok();
+        }
+
+        private string GenerateJwtToken(string email, ApplicationUser user)
+        {
+            var claims = new List<Claim>();
+            claims.Add(new Claim(ClaimTypes.Name, user.UserName));
+            claims.AddRange(user.Roles.Select(role => new Claim(ClaimTypes.Role, role)));
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config.Secret));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var expires = DateTime.Now.AddDays(30);
+
+            var token = new JwtSecurityToken(
+                null,
+                null,
+                claims,
+                expires: expires,
+                signingCredentials: creds
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+    }
 }
