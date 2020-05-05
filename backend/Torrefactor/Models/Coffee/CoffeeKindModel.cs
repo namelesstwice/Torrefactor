@@ -1,17 +1,17 @@
-namespace Torrefactor.Controllers
+using Newtonsoft.Json;
+
+namespace Torrefactor.Models.Coffee
 {
     public class CoffeeKindModel
     {
-        public string Name { get; private set; }
-        public CoffeePackModel[] Packs { get; private set; }
-        public bool IsAvailable { get; private set; }
-        public CoffeePackModel? SmallPack { get; private set; }
-        public CoffeePackModel? BigPack { get; private set; }
+        public CoffeeKindModel()
+        {
+        }
 
         public CoffeeKindModel(
-            string name, 
-            CoffeePackModel[]? packs, 
-            bool isAvailable, 
+            string name,
+            CoffeePackModel[]? packs,
+            bool isAvailable,
             CoffeePackModel? smallPack,
             CoffeePackModel? bigPack)
         {
@@ -21,5 +21,15 @@ namespace Torrefactor.Controllers
             SmallPack = smallPack;
             BigPack = bigPack;
         }
+
+        [JsonProperty] public string Name { get; private set; } = "";
+
+        [JsonProperty] public CoffeePackModel[] Packs { get; private set; } = new CoffeePackModel[0];
+
+        [JsonProperty] public bool IsAvailable { get; private set; }
+
+        [JsonProperty] public CoffeePackModel? SmallPack { get; private set; }
+
+        [JsonProperty] public CoffeePackModel? BigPack { get; private set; }
     }
 }

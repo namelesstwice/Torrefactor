@@ -15,4 +15,8 @@
   <ItemGroup>
     <Folder Include="Entities" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Torrefactor.Core\Torrefactor.Core.csproj" />
+    <ProjectReference Include="..\..\Torrefactor.Infrastructure\Torrefactor.Infrastructure.csproj" />
+  </ItemGroup>
 </Project>

@@ -14,7 +14,7 @@ namespace Torrefactor.Tests.Integration.Clients
             return ApiResponse.CreateFrom(httpResponseTask);
         }
     }
-    
+
     public class ApiResponse
     {
         private ApiResponse(HttpStatusCode statusCode, string content, Uri requestUri)
@@ -25,7 +25,7 @@ namespace Torrefactor.Tests.Integration.Clients
         }
 
         public HttpStatusCode StatusCode { get; }
-        
+
         public string Content { get; }
         public Uri RequestUri { get; }
 
@@ -48,8 +48,9 @@ namespace Torrefactor.Tests.Integration.Clients
         {
             if (StatusCode == HttpStatusCode.OK || StatusCode == HttpStatusCode.NoContent)
                 return;
-            
-            throw new InvalidOperationException($"Request {RequestUri} has failed. Status code is: {StatusCode}. Content is: `{Content}`");
+
+            throw new InvalidOperationException(
+                $"Request {RequestUri} has failed. Status code is: {StatusCode}. Content is: `{Content}`");
         }
 
         public static async Task<ApiResponse> CreateFrom(Task<HttpResponseMessage> httpResponseTask)

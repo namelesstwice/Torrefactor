@@ -2,34 +2,37 @@ using System;
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Options;
 
-namespace Torrefactor.Models
+namespace Torrefactor.Core
 {
     public class GroupCoffeeOrder
     {
-        [BsonId]
-        public ObjectId Id { get; private set; }
-
-        [BsonElement("createdAt"), BsonRequired]
-        public DateTime CreatedAt { get; private set; }
-
-        [BsonElement("isSent"), BsonRequired] 
-        public bool IsActive => State != GroupCoffeeOrderState.Sent && State != GroupCoffeeOrderState.Canceled;
-        
-        [BsonElement("state"), BsonRequired]
-        public GroupCoffeeOrderState State { get; private set; }
-
-        [BsonIgnore]
-        public IReadOnlyCollection<PersonalCoffeeOrder> PersonalOrders => _personalOrders.Values;
-        
-        [BsonElement("personalOrders"), BsonRequired]
-        private readonly Dictionary<string, PersonalCoffeeOrder> _personalOrders;
+        [BsonElement("personalOrders")]
+        [BsonRequired]
+        [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)]
+        // ReSharper disable once FieldCanBeMadeReadOnly.Local - used by MongoDB driver
+        private Dictionary<string, PersonalCoffeeOrder> _personalOrders;
 
         public GroupCoffeeOrder()
         {
             CreatedAt = DateTime.UtcNow;
             _personalOrders = new Dictionary<string, PersonalCoffeeOrder>();
         }
+
+        [BsonId] public ObjectId Id { get; private set; }
+
+        [BsonElement("createdAt")]
+        [BsonRequired]
+        public DateTime CreatedAt { get; }
+
+        [BsonElement("isSent")]
+        [BsonRequired]
+        public bool IsActive => State != GroupCoffeeOrderState.Sent && State != GroupCoffeeOrderState.Canceled;
+
+        [BsonElement("state")] [BsonRequired] public GroupCoffeeOrderState State { get; private set; }
+
+        [BsonIgnore] public IReadOnlyCollection<PersonalCoffeeOrder> PersonalOrders => _personalOrders.Values;
 
         public PersonalCoffeeOrder? TryGetPersonalOrder(string customerName)
         {
@@ -47,7 +50,7 @@ namespace Torrefactor.Models
                 personalOrder = new PersonalCoffeeOrder(customerName);
                 _personalOrders[customerName] = personalOrder;
             }
-            
+
             personalOrder.AddCoffeePack(pack);
         }
 
@@ -61,7 +64,7 @@ namespace Torrefactor.Models
                 personalOrder = new PersonalCoffeeOrder(customerName);
                 _personalOrders[customerName] = personalOrder;
             }
-            
+
             personalOrder.RemoveCoffeePack(pack);
         }
 
@@ -80,7 +83,7 @@ namespace Torrefactor.Models
 
             State = GroupCoffeeOrderState.Sent;
         }
-        
+
         public void MarkSendAsFailed()
         {
             if (State != GroupCoffeeOrderState.Sending)
@@ -96,14 +99,5 @@ namespace Torrefactor.Models
 
             State = GroupCoffeeOrderState.Canceled;
         }
-    }
-
-    public enum GroupCoffeeOrderState
-    {
-        Created,
-        Sending,
-        Sent,
-        SendFailed,
-        Canceled
     }
 }

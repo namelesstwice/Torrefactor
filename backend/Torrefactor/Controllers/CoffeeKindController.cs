@@ -3,9 +3,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Torrefactor.Models;
-using Torrefactor.Services;
-using Torrefactor.Services.CoffeeKinds;
+using Torrefactor.Core;
+using Torrefactor.Core.Services;
+using Torrefactor.Models.Coffee;
 
 namespace Torrefactor.Controllers
 {
@@ -13,8 +13,8 @@ namespace Torrefactor.Controllers
     [Route("api/coffee-kinds")]
     public class CoffeeKindController : Controller
     {
-        private readonly CoffeeOrderService _coffeeOrderService;
         private readonly CoffeeKindService _coffeeKindService;
+        private readonly CoffeeOrderService _coffeeOrderService;
 
         public CoffeeKindController(
             CoffeeOrderService coffeeOrderService,
@@ -45,7 +45,7 @@ namespace Torrefactor.Controllers
                     packs?.Last());
             });
         }
-		
+
         [HttpPost("reload")]
         [Authorize(Roles = "admin")]
         public async Task ReloadCoffeeKinds()

@@ -1,10 +1,11 @@
 using System.Threading.Tasks;
 using MongoDB.Driver;
-using Torrefactor.Models;
+using Torrefactor.Core;
+using Torrefactor.Core.Interfaces;
 
-namespace Torrefactor.DAL
+namespace Torrefactor.Infrastructure.DAL
 {
-    public class GroupCoffeeOrderRepository : Repository<GroupCoffeeOrder>
+    internal sealed class GroupCoffeeOrderRepository : Repository<GroupCoffeeOrder>, IGroupCoffeeOrderRepository
     {
         public GroupCoffeeOrderRepository(IMongoDatabase db) : base(db, "groupCoffeeOrders")
         {

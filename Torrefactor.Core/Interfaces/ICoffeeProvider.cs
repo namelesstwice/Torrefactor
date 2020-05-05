@@ -1,8 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Torrefactor.Models;
 
-namespace Torrefactor.Services
+namespace Torrefactor.Core.Interfaces
 {
     public interface ICoffeeProvider
     {

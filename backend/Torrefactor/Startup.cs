@@ -4,19 +4,14 @@ using AspNetCore.Identity.Mongo;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using MongoDB.Driver;
-using Torrefactor.DAL;
-using Torrefactor.Models;
-using Torrefactor.Models.Auth;
-using Torrefactor.Services;
-using Torrefactor.Services.CoffeeKinds;
+using Torrefactor.Core;
+using Torrefactor.Entities.Auth;
+using Torrefactor.Infrastructure;
 
 namespace Torrefactor
 {
@@ -26,6 +21,9 @@ namespace Torrefactor
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            CoreModule.Load(services);
+            InfrastructureModule.Load(services);
+
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json")
@@ -33,18 +31,7 @@ namespace Torrefactor
                 .AddEnvironmentVariables();
 
             services.AddSingleton(p => builder.Build().Get<Config>());
-            services.AddSingleton(p =>
-            {
-                var config = p.GetService<Config>();
-                return new MongoClient(config.MongodbConnectionString).GetDatabase(config.DatabaseName);
-            });
-            services.AddSingleton<CoffeeKindRepository>();
-            services.AddSingleton<GroupCoffeeOrderRepository>();
-            services.AddSingleton<CoffeeOrderService>();
-            services.AddSingleton<CoffeeKindService>();
-            services.AddSingleton<TorrefactoCoffeeProvider>();
-            services.AddSingleton<ICoffeeProvider, TorrefactoCoffeeProvider>();
-            
+
             services.AddIdentityMongoDbProvider<ApplicationUser, ApplicationRole>(identityOptions =>
             {
                 identityOptions.User.RequireUniqueEmail = true;
@@ -55,51 +42,45 @@ namespace Torrefactor
                 identityOptions.Password.RequireDigit = false;
                 identityOptions.Password.RequiredUniqueChars = 0;
                 identityOptions.SignIn.RequireConfirmedAccount = true;
-            }, mongoIdentityOptions => {
+            }, mongoIdentityOptions =>
+            {
                 var sp = services.BuildServiceProvider();
                 var cfg = sp.GetService<Config>();
                 mongoIdentityOptions.ConnectionString = $"{cfg.MongodbConnectionString}/{cfg.DatabaseName}";
                 mongoIdentityOptions.UsersCollection = "users";
             });
-            
+
             services.AddAuthentication(x =>
-            {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(x =>
-            {
-                var sp = services.BuildServiceProvider();
-                var cfg = sp.GetService<Config>();
-                x.RequireHttpsMetadata = false;
-                x.SaveToken = true;
-                x.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(cfg.Secret)),
-                    ValidateIssuer = false,
-                    ValidateAudience = false
-                };
-            });
+                    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(x =>
+                {
+                    var sp = services.BuildServiceProvider();
+                    var cfg = sp.GetService<Config>();
+                    x.RequireHttpsMetadata = false;
+                    x.SaveToken = true;
+                    x.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(cfg.Secret)),
+                        ValidateIssuer = false,
+                        ValidateAudience = false
+                    };
+                });
 
             IFileProvider physicalProvider = new PhysicalFileProvider(Directory.GetCurrentDirectory());
 
-            services.AddSingleton<IFileProvider>(physicalProvider);
+            services.AddSingleton(physicalProvider);
             services.AddControllers();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                //app.UseHttpsRedirection();
-            }
-            
+            if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
+
             app.UseStaticFiles();
             env.WebRootFileProvider = new PhysicalFileProvider(Directory.GetCurrentDirectory());
             app.UseRouting();

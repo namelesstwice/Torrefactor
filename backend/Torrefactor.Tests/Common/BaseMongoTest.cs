@@ -7,6 +7,11 @@ namespace Torrefactor.Tests.Common
 {
     public abstract class BaseMongoTest
     {
+        private readonly MongoDockerContainer _mongoContainer = new MongoDockerContainer();
+
+        protected IMongoDatabase MongoDatabase { get; private set; }
+        protected string ConnectionString { get; private set; }
+
         [OneTimeSetUp]
         public async Task OneTimeSetup()
         {
@@ -25,10 +30,5 @@ namespace Torrefactor.Tests.Common
         {
             await _mongoContainer.StopAndRemove();
         }
-
-        protected IMongoDatabase MongoDatabase { get; private set; }
-        protected string ConnectionString { get; private set; }
-
-        private readonly MongoDockerContainer _mongoContainer = new MongoDockerContainer();
     }
 }

@@ -1,6 +1,6 @@
-namespace Torrefactor.Models
+namespace Torrefactor.Core
 {
-    public enum PackState
+    public enum CoffeePackState
     {
         Available,
         PriceChanged,
