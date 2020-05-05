@@ -41,13 +41,13 @@ namespace Torrefactor.Controllers
                     continue;
                 }
 
-                if (!(kind is AvailableCoffeeKind availableCoffeeKind))
+                if (!kind.IsAvailable)
                 {
                     pack.MarkAsUnavailable();
                     continue;
                 }
 
-                pack.Refresh(availableCoffeeKind);
+                pack.Refresh(kind);
             }
 
             return currentOrder.PersonalOrders

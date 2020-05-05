@@ -8,6 +8,6 @@ namespace Torrefactor.Core.Interfaces
         Task<IReadOnlyCollection<CoffeeKind>> GetCoffeeKinds();
         Task Authenticate();
         Task CleanupBasket();
-        Task AddToBasket(AvailableCoffeeKind kind, CoffeePack pack, int count);
+        Task AddToBasket(CoffeeKind kind, CoffeePack pack, int count);
     }
 }

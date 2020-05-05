@@ -31,7 +31,7 @@ namespace Torrefactor.Tests.Integration
                     var fakeCoffeeProvider = A.Fake<ICoffeeProvider>();
                     A.CallTo(() => fakeCoffeeProvider.GetCoffeeKinds()).Returns(new[]
                     {
-                        new AvailableCoffeeKind("123", new[]
+                        new CoffeeKind("123", true, new[]
                         {
                             CoffeePack.Create(123, 123).SetId("123")
                         })

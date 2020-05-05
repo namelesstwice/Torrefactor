@@ -32,7 +32,7 @@ namespace Torrefactor.Controllers
 
             return coffeeKinds.Select(kind =>
             {
-                var packs = (kind as AvailableCoffeeKind)?.AvailablePacks
+                var packs = kind.AvailablePacks
                     .Select(pack => new CoffeePackModel(pack, userOrder?.GetCount(kind, pack.Weight) ?? 0))
                     .OrderBy(_ => _.Weight)
                     .ToArray();
@@ -40,7 +40,7 @@ namespace Torrefactor.Controllers
                 return new CoffeeKindModel(
                     kind.Name,
                     packs,
-                    kind is AvailableCoffeeKind,
+                    kind.IsAvailable,
                     packs?.First(),
                     packs?.Last());
             });
