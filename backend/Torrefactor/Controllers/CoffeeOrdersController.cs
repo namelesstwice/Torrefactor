@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Torrefactor.Core;
 using Torrefactor.Core.Services;
+using Torrefactor.Models.Coffee;
 
 namespace Torrefactor.Controllers
 {
@@ -55,25 +56,7 @@ namespace Torrefactor.Controllers
                 .Select(o => new
                 {
                     Name = o.Username,
-                    Orders = o.Packs
-                        .GroupBy(p => new
-                        {
-                            CoffeeName = p.CoffeeKindName,
-                            p.Weight,
-                            p.State
-                        })
-                        .Select(p => new
-                        {
-                            Name = p.Key.CoffeeName,
-                            Packs = new[]
-                            {
-                                new
-                                {
-                                    p.Key.Weight,
-                                    Count = p.Count()
-                                }
-                            }
-                        }),
+                    Orders = o.GetUniquePacksCount().Select(_ => new CoffeePackModel(_.Pack, _.Count)),
                     OverallState = o.Packs.Any(p => p.State == CoffeePackState.Unavailable)
                         ? CoffeePackState.Unavailable
                         : o.Packs.Any(p => p.State == CoffeePackState.PriceChanged)
