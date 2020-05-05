@@ -15,13 +15,16 @@ namespace Torrefactor.Controllers
     {
         private readonly CoffeeKindService _coffeeKindService;
         private readonly CoffeeOrderService _coffeeOrderService;
+        private readonly ICoffeeProviderSelector _coffeeProviderSelector;
 
         public CoffeeKindController(
             CoffeeOrderService coffeeOrderService,
-            CoffeeKindService coffeeKindService)
+            CoffeeKindService coffeeKindService, 
+            ICoffeeProviderSelector coffeeProviderSelector)
         {
             _coffeeOrderService = coffeeOrderService;
             _coffeeKindService = coffeeKindService;
+            _coffeeProviderSelector = coffeeProviderSelector;
         }
 
         [HttpGet("")]
@@ -40,6 +43,12 @@ namespace Torrefactor.Controllers
                 select new CoffeeKindModel(k.Name, packs, k.IsAvailable, packs?.First(), packs?.Last());
             
             return new CoffeeKindPageModel(groupOrderExists, kinds);
+        }
+
+        [HttpGet("providers")]
+        public IReadOnlyCollection<string> GetProviderIds()
+        {
+            return _coffeeProviderSelector.GetProviderIds();
         }
 
         [HttpPost("reload")]

@@ -13,6 +13,9 @@ namespace Torrefactor.Core.Services
             _coffeeProviders = coffeeProviders.ToDictionary(_ => _.Id);
         }
 
+        public IReadOnlyCollection<string> GetProviderIds()
+            => _coffeeProviders.Keys.ToList();
+
         public ICoffeeProvider SelectFor(GroupCoffeeOrder order)
             => _coffeeProviders[order.ProviderId];
     }
