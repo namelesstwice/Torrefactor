@@ -19,6 +19,14 @@ namespace Torrefactor.Core
 
         [BsonIgnore] public IReadOnlyCollection<CoffeePack> Packs => _packs;
 
+        public int GetCount(CoffeeKind kind, int weight) 
+            => _packs.Count(_ => _.CoffeeKindName == kind.Name && _.Weight == weight);
+
+        public IEnumerable<(CoffeePack Pack, int Count)> GetUniquePacksCount()
+            => from p in _packs
+                group p by (p.CoffeeKindName, p.Weight) into g
+                select (g.First(), g.Count());
+
         public void AddCoffeePack(CoffeePack pack)
         {
             _packs.Add(pack);
@@ -27,11 +35,6 @@ namespace Torrefactor.Core
         public void RemoveCoffeePack(CoffeePack pack)
         {
             _packs.Remove(pack);
-        }
-
-        public int GetCount(CoffeeKind kind, int weight)
-        {
-            return _packs.Count(_ => _.CoffeeKindName == kind.Name && _.Weight == weight);
         }
     }
 }
