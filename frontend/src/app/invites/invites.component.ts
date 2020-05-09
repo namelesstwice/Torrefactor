@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { User } from '../_models/user';
-import { InvitesService } from '../invites.service';
+import { InvitesService } from '../_services/invites.service';
 
 @Component({
   selector: 'app-invites',

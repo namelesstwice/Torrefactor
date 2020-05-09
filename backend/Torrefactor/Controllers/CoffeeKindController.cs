@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Torrefactor.Core;
 using Torrefactor.Core.Services;
 using Torrefactor.Models.Coffee;
 
@@ -30,11 +29,15 @@ namespace Torrefactor.Controllers
         [HttpGet("")]
         public async Task<CoffeeKindPageModel> Get()
         {
-            var coffeeKinds = await _coffeeKindService.GetAll();
             var (userOrder, groupOrderExists) = await _coffeeOrderService.TryGetPersonalOrder(User.Identity.Name!);
+            if (!groupOrderExists)
+                return new CoffeeKindPageModel(false, new CoffeeKindModel[0]);
+            
+            var coffeeKinds = await _coffeeKindService.GetAll();
 
             var kinds = 
                 from k in coffeeKinds
+                where k.IsAvailable
                 let packs = (
                     from p in k.AvailablePacks
                     orderby p.Weight
@@ -45,10 +48,11 @@ namespace Torrefactor.Controllers
             return new CoffeeKindPageModel(groupOrderExists, kinds);
         }
 
-        [HttpGet("providers")]
-        public IReadOnlyCollection<string> GetProviderIds()
+        [HttpGet("roasters")]
+        [Authorize(Roles = "admin")]
+        public IEnumerable<CoffeeRoasterModel> GetCoffeeRoasters()
         {
-            return _coffeeRoasterSelector.GetProviderIds();
+            return _coffeeRoasterSelector.GetRoasters().Select(_ => new CoffeeRoasterModel(_.Id, _.Name));
         }
 
         [HttpPost("reload")]

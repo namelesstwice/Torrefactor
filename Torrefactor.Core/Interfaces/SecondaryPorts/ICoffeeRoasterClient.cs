@@ -5,9 +5,9 @@ namespace Torrefactor.Core.Interfaces
 {
     public interface ICoffeeRoasterClient
     {
-        string Id { get; }
+        CoffeeRoaster Roaster { get; }
         Task<IReadOnlyCollection<CoffeeKind>> GetCoffeeKinds();
-        Task Authenticate();
+        Task Authenticate(string key);
         Task CleanupBasket();
         Task AddToBasket(CoffeeKind kind, CoffeePack pack, int count);
     }

@@ -21,8 +21,8 @@ namespace Torrefactor.Infrastructure.CoffeeProviders.Torrefacto
                     let name = div.Descendants()
                         .Single(_ => HasAttribute(_, "data-prop-name"))
                         .Attributes["data-prop-name"].Value
-                    let isNotAvailable = div.Descendants().Any(_ => HasClass(_, "button-disabled"))
-                    select new CoffeeKind(name, isNotAvailable, packs)
+                    let isAvailable = !div.Descendants().Any(_ => _.HasClass("button-disabled"))
+                    select new CoffeeKind(name, isAvailable, packs)
                 )
                 .ToList();
         }
@@ -30,13 +30,13 @@ namespace Torrefactor.Infrastructure.CoffeeProviders.Torrefacto
         private static IEnumerable<CoffeePack.Builder> TryParsePacks(HtmlNode div)
         {
             var priceHolder = div?.Descendants()
-                .SingleOrDefault(_ => HasClass(_, "current-price"));
+                .SingleOrDefault(_ => _.HasClass("current-price"));
 
             if (priceHolder == null)
                 yield break;
 
             var packSizeHolders = div?.Descendants()
-                .Single(_ => HasClass(_, "offer-type"))
+                .Single(_ => _.HasClass("offer-type"))
                 .Descendants("option");
 
             if (packSizeHolders == null)
@@ -50,11 +50,6 @@ namespace Torrefactor.Infrastructure.CoffeeProviders.Torrefacto
 
                 yield return CoffeePack.Create(packSize, price).SetId(id);
             }
-        }
-
-        private static bool HasClass(HtmlNode node, string className)
-        {
-            return node.Attributes.Any(a => a.Name == "class" && a.Value.Split(' ').Any(_ => _ == className));
         }
 
         private static bool HasAttribute(HtmlNode node, string name, string? value = null)

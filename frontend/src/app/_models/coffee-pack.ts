@@ -1,5 +1,6 @@
-export class CoffeePack {
-  public weight: number;
-  public price: number;
-  public count: number;
+export interface CoffeePack {
+  coffeeKindName: string;
+  weight: number;
+  price: number;
+  count: number;
 }

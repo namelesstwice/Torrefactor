@@ -62,5 +62,8 @@ namespace Torrefactor.Core.Services
             await _coffeeKindRepository.Clean();
             await _coffeeKindRepository.Insert(coffeeKinds!);
         }
+
+        public Task<CoffeeKind> Get(string coffeeName)
+            => _coffeeKindRepository.Get(coffeeName);
     }
 }

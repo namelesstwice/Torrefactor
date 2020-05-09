@@ -1,4 +1,4 @@
-<table mat-table [dataSource]="coffeeKinds">
+<table mat-table [dataSource]="coffeeKinds" *ngIf="activeGroupOrderExists">
     <ng-container matColumnDef="name">
         <mat-header-cell *matHeaderCellDef> Name </mat-header-cell>
         <mat-cell *matCellDef="let element"> {{element.name}} </mat-cell>
@@ -32,3 +32,10 @@
     <mat-header-row *matHeaderRowDef="['name', 'smallPack', 'smallPackAdd', 'bigPack', 'bigPackAdd']"></mat-header-row>
     <mat-row *matRowDef="let row; columns: ['name', 'smallPack', 'smallPackAdd', 'bigPack', 'bigPackAdd'];"></mat-row>
 </table>
+
+<div *ngIf="!activeGroupOrderExists && !isLoading" fxLayout="row" fxLayoutAlign="center center">
+    <div fxLayout="column" fxFlex="50%">
+        <h2>Right now we are not planning to order coffee.</h2>
+        <p>If you want some coffee, pls post a message in #coffee channel</p>
+    </div>
+</div>

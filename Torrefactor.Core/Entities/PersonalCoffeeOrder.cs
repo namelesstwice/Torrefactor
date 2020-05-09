@@ -15,7 +15,7 @@ namespace Torrefactor.Core
             _packs = new List<CoffeePack>();
         }
 
-        [BsonId] public string Username { get; }
+        [BsonId] public string Username { get; private set; }
 
         [BsonIgnore] public IReadOnlyCollection<CoffeePack> Packs => _packs;
 

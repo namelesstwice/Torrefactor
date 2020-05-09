@@ -14,9 +14,9 @@ namespace Torrefactor.Core
         // ReSharper disable once FieldCanBeMadeReadOnly.Local - used by MongoDB driver
         private Dictionary<string, PersonalCoffeeOrder> _personalOrders;
 
-        public GroupCoffeeOrder(string providerId)
+        public GroupCoffeeOrder(string roasterId)
         {
-            ProviderId = providerId;
+            RoasterId = roasterId;
             CreatedAt = DateTime.UtcNow;
             _personalOrders = new Dictionary<string, PersonalCoffeeOrder>();
         }
@@ -39,9 +39,9 @@ namespace Torrefactor.Core
         [BsonIgnore] 
         public IReadOnlyCollection<PersonalCoffeeOrder> PersonalOrders => _personalOrders.Values;
         
-        [BsonElement("providerId")] 
+        [BsonElement("roasterId")] 
         [BsonRequired] 
-        public string ProviderId { get; private set; }
+        public string RoasterId { get; private set; }
 
         public PersonalCoffeeOrder? TryGetPersonalOrder(string customerName)
         {
@@ -79,7 +79,9 @@ namespace Torrefactor.Core
 
         public void StartSending()
         {
-            if (State != GroupCoffeeOrderState.Created && State != GroupCoffeeOrderState.SendFailed)
+            if (State != GroupCoffeeOrderState.Created && 
+                State != GroupCoffeeOrderState.SendFailed && 
+                State != GroupCoffeeOrderState.Sending)
                 throw new InvalidOperationException($"Invalid state: {State}; Order id: {Id}");
 
             State = GroupCoffeeOrderState.Sending;

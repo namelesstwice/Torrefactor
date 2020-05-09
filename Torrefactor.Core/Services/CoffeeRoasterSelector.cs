@@ -10,13 +10,13 @@ namespace Torrefactor.Core.Services
 
         public CoffeeRoasterSelector(IEnumerable<ICoffeeRoasterClient> coffeeProviders)
         {
-            _coffeeProviders = coffeeProviders.ToDictionary(_ => _.Id);
+            _coffeeProviders = coffeeProviders.ToDictionary(_ => _.Roaster.Id);
         }
 
-        public IReadOnlyCollection<string> GetProviderIds()
-            => _coffeeProviders.Keys.ToList();
+        public IReadOnlyCollection<CoffeeRoaster> GetRoasters()
+            => _coffeeProviders.Select(_ => _.Value.Roaster).ToList();
 
         public ICoffeeRoasterClient SelectFor(GroupCoffeeOrder order)
-            => _coffeeProviders[order.ProviderId];
+            => _coffeeProviders[order.RoasterId];
     }
 }
