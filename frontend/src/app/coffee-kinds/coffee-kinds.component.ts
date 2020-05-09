@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CoffeeKindService } from '../coffee-kind.service';
+import { CoffeeKindService } from '../_services/coffee-kind.service';
 import { map } from 'rxjs/operators';
 import { CoffeeKind } from '../_models/coffee-kind';
 import { CoffeePack } from '../_models/coffee-pack';
@@ -11,12 +11,16 @@ import { CoffeePack } from '../_models/coffee-pack';
 })
 export class CoffeeKindsComponent implements OnInit {
   coffeeKinds: CoffeeKind[] = [];
+  activeGroupOrderExists = false;
+  isLoading = true;
 
   constructor(private coffeeKindSvc: CoffeeKindService) { }
 
   ngOnInit(): void {
-    this.coffeeKindSvc.getCoffeeKinds().subscribe(coffee => {
-      this.coffeeKinds = coffee.filter(_ => _.isAvailable);
+    this.coffeeKindSvc.getCoffeeKinds().subscribe(p => {
+      this.activeGroupOrderExists = p.activeGroupOrderExists;
+      this.coffeeKinds = p.coffeeKinds.filter(_ => _.isAvailable);
+      this.isLoading = false;
     });
   }
 

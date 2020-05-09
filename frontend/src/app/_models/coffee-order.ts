@@ -1,4 +1,4 @@
-import { CoffeeKind } from './coffee-kind';
+import { CoffeePack } from './coffee-pack';
 
 enum PackState
 {
@@ -7,9 +7,9 @@ enum PackState
   Unavailable
 }
 
-export class CoffeeOrder {
+export interface CoffeeOrder {
   name: string;
-  orders: CoffeeKind[];
-  price: number;
+  coffeePacks: CoffeePack[];
+  totalCost: number;
   overallState: PackState;
 }

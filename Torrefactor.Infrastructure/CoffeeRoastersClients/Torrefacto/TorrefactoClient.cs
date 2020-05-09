@@ -21,7 +21,7 @@ namespace Torrefactor.Infrastructure.CoffeeProviders.Torrefacto
             _config = config;
         }
         
-        public string Id { get; } = "TF";
+        public CoffeeRoaster Roaster { get; } = new CoffeeRoaster("TF", "Torrefacto");
 
         public async Task<IReadOnlyCollection<CoffeeKind>> GetCoffeeKinds()
         {
@@ -30,7 +30,7 @@ namespace Torrefactor.Infrastructure.CoffeeProviders.Torrefacto
             return TorrefactorCoffeeListPageParser.Parse(response.GetResponseStream());
         }
 
-        public async Task Authenticate()
+        public async Task Authenticate(string key)
         {
             await _client.DownloadStringTaskAsync(getFullUrl(""));
             await _client.UploadValuesTaskAsync(getFullUrl("ajaxa.php"), new NameValueCollection

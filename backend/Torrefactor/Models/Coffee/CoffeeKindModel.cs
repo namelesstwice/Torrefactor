@@ -12,8 +12,8 @@ namespace Torrefactor.Models.Coffee
             string name,
             CoffeePackModel[]? packs,
             bool isAvailable,
-            CoffeePackModel? smallPack,
-            CoffeePackModel? bigPack)
+            CoffeePackModel? smallPack = null,
+            CoffeePackModel? bigPack = null)
         {
             Name = name;
             Packs = packs ?? new CoffeePackModel[0];

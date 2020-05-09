@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Torrefactor.Core;
@@ -7,35 +9,43 @@ using Torrefactor.Core.Interfaces;
 
 namespace Torrefactor.Infrastructure.CoffeeProviders.RocketsCoffee
 {
-    internal sealed class RocketsCoffeeClient : ICoffeeRoasterClient
+    public sealed class RocketsCoffeeClient : ICoffeeRoasterClient
     {
         private const string BaseUrl = "https://rockets.coffee";
+        private readonly CookieContainer _container;
+        private readonly HttpClient _httpClient;
 
-        public string Id { get; } = "Rockets";
+        public RocketsCoffeeClient()
+        {
+            _container = new CookieContainer();
+            _httpClient = new HttpClient(new HttpClientHandler() { CookieContainer = _container});
+        }
+
+        public CoffeeRoaster Roaster { get; } = new CoffeeRoaster("Rockets", "Rockets coffee");
 
         public async Task<IReadOnlyCollection<CoffeeKind>> GetCoffeeKinds()
         {
-            var httpClient = new HttpClient();
-            var response = await httpClient.GetAsync($"{BaseUrl}/catalog/coffee");
+            var response = await _httpClient.GetAsync($"{BaseUrl}/catalog/coffee");
             
             return RocketsCoffeeListPageParser
                 .Parse(await response.Content.ReadAsStringAsync())
                 .ToList();
         }
 
-        public Task Authenticate()
+        public async Task Authenticate(string key)
         {
-            throw new System.NotImplementedException();
+            _container.Add(new Uri(BaseUrl), new Cookie("PHPSESSID", key));
         }
 
-        public Task CleanupBasket()
+        public async Task CleanupBasket()
         {
-            throw new System.NotImplementedException();
+            
         }
 
-        public Task AddToBasket(CoffeeKind kind, CoffeePack pack, int count)
+        public async Task AddToBasket(CoffeeKind kind, CoffeePack pack, int count)
         {
-            throw new System.NotImplementedException();
+            
+            await _httpClient.GetAsync($"{BaseUrl}/ajax/cart.php?variant={pack.ExternalId}&amount={count}");
         }
     }
 }

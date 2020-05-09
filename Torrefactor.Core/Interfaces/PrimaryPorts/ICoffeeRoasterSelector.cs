@@ -6,6 +6,6 @@ namespace Torrefactor.Core.Services
     public interface ICoffeeRoasterSelector
     {
         ICoffeeRoasterClient SelectFor(GroupCoffeeOrder order);
-        IReadOnlyCollection<string> GetProviderIds();
+        IReadOnlyCollection<CoffeeRoaster> GetRoasters();
     }
 }

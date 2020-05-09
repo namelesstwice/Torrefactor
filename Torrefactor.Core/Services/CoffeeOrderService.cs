@@ -8,16 +8,16 @@ namespace Torrefactor.Core.Services
 {
     public class CoffeeOrderService
     {
-        private readonly ICoffeeKindRepository _coffeeKindRepository;
+        private readonly CoffeeKindService _coffeeKindService;
         private readonly IGroupCoffeeOrderRepository _groupCoffeeOrderRepository;
         private readonly ICoffeeRoasterSelector _coffeeRoasterSelector;
 
         public CoffeeOrderService(
-            ICoffeeKindRepository coffeeKindRepository,
+            CoffeeKindService coffeeKindService,
             IGroupCoffeeOrderRepository groupCoffeeOrderRepository,
             ICoffeeRoasterSelector coffeeRoasterSelector)
         {
-            _coffeeKindRepository = coffeeKindRepository;
+            _coffeeKindService = coffeeKindService;
             _groupCoffeeOrderRepository = groupCoffeeOrderRepository;
             _coffeeRoasterSelector = coffeeRoasterSelector;
         }
@@ -28,7 +28,7 @@ namespace Torrefactor.Core.Services
             if (currentOrder == null)
                 return null;
             
-            var kinds = (await _coffeeKindRepository.GetAll()).ToDictionary(p => p.Name);
+            var kinds = (await _coffeeKindService.GetAll()).ToDictionary(p => p.Name);
 
             foreach (var pack in currentOrder.PersonalOrders.SelectMany(o => o.Packs))
             {
@@ -68,6 +68,7 @@ namespace Torrefactor.Core.Services
 
             currentGroupOrder = new GroupCoffeeOrder(providerId);
             await _groupCoffeeOrderRepository.Insert(new[] {currentGroupOrder});
+            await _coffeeKindService.ReloadCoffeeKinds();
         }
 
         public async Task AddPackToOrder(string customerName, string coffeeName, int weight)
@@ -94,7 +95,7 @@ namespace Torrefactor.Core.Services
             await _groupCoffeeOrderRepository.Update(currentGroupOrder);
         }
 
-        public async Task SendToCoffeeProvider()
+        public async Task SendToCoffeeProvider(string key)
         {
             var currentGroupOrder = await _groupCoffeeOrderRepository.GetCurrentOrder();
             if (currentGroupOrder == null)
@@ -108,7 +109,7 @@ namespace Torrefactor.Core.Services
                 await _groupCoffeeOrderRepository.Update(currentGroupOrder);
                 currentGroupOrder = await _groupCoffeeOrderRepository.GetCurrentOrder();
 
-                await coffeeProvider.Authenticate();
+                await coffeeProvider.Authenticate(key);
                 await coffeeProvider.CleanupBasket();
 
                 await foreach (var order in GetCoffeePacksToSend(currentGroupOrder!))
@@ -124,9 +125,20 @@ namespace Torrefactor.Core.Services
             }
         }
 
+        public async Task CancelCurrentGroupOrder()
+        {
+            var currentGroupOrder = await _groupCoffeeOrderRepository.GetCurrentOrder();
+            if (currentGroupOrder == null)
+                throw new CoffeeOrderException("No group order available");
+            
+            currentGroupOrder.Cancel();
+
+            await _groupCoffeeOrderRepository.Update(currentGroupOrder);
+        }
+
         private async IAsyncEnumerable<(CoffeeKind Kind, CoffeePack Pack, int Count)> GetCoffeePacksToSend(GroupCoffeeOrder order)
         {
-            var coffeeKinds = (await _coffeeKindRepository.GetAll())
+            var coffeeKinds = (await _coffeeKindService.GetAll())
                 .ToDictionary(_ => _.Name);
 
             var packsByCoffeeKind =
@@ -145,7 +157,7 @@ namespace Torrefactor.Core.Services
 
         private async Task<CoffeePack> GetDesiredPack(string coffeeName, int weight)
         {
-            var coffeeKind = await _coffeeKindRepository.Get(coffeeName);
+            var coffeeKind = await _coffeeKindService.Get(coffeeName);
             if (coffeeKind == null)
                 throw new ArgumentException($"Coffee kind {coffeeName} does not exist");
             

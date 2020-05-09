@@ -1,6 +1,7 @@
-<button mat-stroked-button color="primary" (click)="reloadKinds()" [disabled]="isLoading">Reload coffee kinds</button>
-<button mat-stroked-button color="primary" (click)="removeAll()" [disabled]="isLoading">Remove all orders</button>
-<button mat-stroked-button color="primary" (click)="push()" [disabled]="isLoading">Push orders</button>
+<button mat-stroked-button color="primary" (click)="createNewGroupOrder()" [disabled]="isLoading || hasActiveGroupOrder">Create new group order</button>
+<button mat-stroked-button color="primary" (click)="reloadKinds()" [disabled]="isLoading || !hasActiveGroupOrder">Reload coffee kinds</button>
+<button mat-stroked-button color="primary" (click)="cancel()" [disabled]="isLoading || !hasActiveGroupOrder">Cancel group order</button>
+<button mat-stroked-button color="primary" (click)="push()" [disabled]="isLoading || !hasActiveGroupOrder">Push orders</button>
 
 <table mat-table [dataSource]="orders">
     <ng-container matColumnDef="name">
@@ -10,12 +11,12 @@
     </ng-container>
     <ng-container matColumnDef="packs">
         <mat-header-cell *matHeaderCellDef> Packs </mat-header-cell>
-        <mat-cell *matCellDef="let element"> {{ format(element.orders) }} </mat-cell>
+        <mat-cell *matCellDef="let element"> {{ format(element.coffeePacks) }} </mat-cell>
         <mat-footer-cell *matFooterCellDef></mat-footer-cell>
     </ng-container>
     <ng-container matColumnDef="price">
         <mat-header-cell *matHeaderCellDef> Price </mat-header-cell>
-        <mat-cell *matCellDef="let element"> {{ element.price }} RUR</mat-cell>
+        <mat-cell *matCellDef="let element"> {{ element.totalCost }} RUR</mat-cell>
         <mat-footer-cell *matFooterCellDef> {{ totalPrice }} RUR</mat-footer-cell>
     </ng-container>
 

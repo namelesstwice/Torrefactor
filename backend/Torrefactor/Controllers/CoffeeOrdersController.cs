@@ -14,14 +14,10 @@ namespace Torrefactor.Controllers
     [Route("api/coffee-orders")]
     public class CoffeeOrdersController : Controller
     {
-        private readonly CoffeeKindService _coffeeKindService;
         private readonly CoffeeOrderService _coffeeOrderService;
 
-        public CoffeeOrdersController(
-            CoffeeKindService coffeeKindService,
-            CoffeeOrderService coffeeOrderService)
+        public CoffeeOrdersController(CoffeeOrderService coffeeOrderService)
         {
-            _coffeeKindService = coffeeKindService;
             _coffeeOrderService = coffeeOrderService;
         }
 
@@ -37,7 +33,7 @@ namespace Torrefactor.Controllers
                 .Where(o => o.Packs.Any())
                 .Select(o => new PersonalCoffeeOrderModel(o));
             
-            return new GroupCoffeeOrderModel(true, personalOrders);
+            return new GroupCoffeeOrderModel(true, currentOrder.RoasterId, personalOrders);
         }
 
         [HttpPost("current-user/{coffeeName}/{weight}")]
@@ -54,9 +50,9 @@ namespace Torrefactor.Controllers
 
         [HttpPost("send")]
         [Authorize(Roles = "admin")]
-        public async Task SendToCoffeeProvider()
+        public async Task SendToCoffeeProvider([FromBody] string key)
         {
-            await _coffeeOrderService.SendToCoffeeProvider();
+            await _coffeeOrderService.SendToCoffeeProvider(key);
         }
 
         [HttpPost("")]
@@ -65,6 +61,13 @@ namespace Torrefactor.Controllers
         {
             await _coffeeOrderService.CreateNewGroupOrder(
                 providerId ?? throw new ArgumentNullException(nameof(providerId)));
+        }
+
+        [HttpDelete("")]
+        [Authorize(Roles = "admin")]
+        public async Task CancelCurrentGroupOrder()
+        {
+            await _coffeeOrderService.CancelCurrentGroupOrder();
         }
     }
 }

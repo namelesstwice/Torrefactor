@@ -1,0 +1,15 @@
+<h2 mat-dialog-title>Choose a coffee roaster for new order</h2>
+<div mat-dialog-content>
+    <mat-form-field>
+        <mat-label>Roster</mat-label>
+        <mat-select [(value)]="selected">
+            <mat-option *ngFor="let roaster of data" [value]="roaster.id">
+            {{roaster.name}}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+</div>
+<div mat-dialog-actions>
+  <button mat-button [mat-dialog-close]="">Cancel</button>
+  <button mat-button [mat-dialog-close]="selected" cdkFocusInitial>Create order</button>
+</div>
