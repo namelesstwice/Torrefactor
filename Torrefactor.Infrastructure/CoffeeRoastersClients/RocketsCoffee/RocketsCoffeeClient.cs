@@ -7,7 +7,7 @@ using Torrefactor.Core.Interfaces;
 
 namespace Torrefactor.Infrastructure.CoffeeProviders.RocketsCoffee
 {
-    internal sealed class RocketsCoffeeProvider : ICoffeeProvider
+    internal sealed class RocketsCoffeeClient : ICoffeeRoasterClient
     {
         private const string BaseUrl = "https://rockets.coffee";
 

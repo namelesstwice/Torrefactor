@@ -20,8 +20,8 @@ namespace Torrefactor.Infrastructure
 
             services.AddSingleton<ICoffeeKindRepository, CoffeeKindRepository>();
             services.AddSingleton<IGroupCoffeeOrderRepository, GroupCoffeeOrderRepository>();
-            services.AddSingleton<ICoffeeProvider, TorrefactoCoffeeProvider>();
-            services.AddSingleton<ICoffeeProvider, RocketsCoffeeProvider>();
+            services.AddSingleton<ICoffeeRoasterClient, TorrefactoClient>();
+            services.AddSingleton<ICoffeeRoasterClient, RocketsCoffeeClient>();
         }
     }
 }

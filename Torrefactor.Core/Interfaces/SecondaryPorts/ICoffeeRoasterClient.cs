@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Torrefactor.Core.Interfaces
 {
-    public interface ICoffeeProvider
+    public interface ICoffeeRoasterClient
     {
         string Id { get; }
         Task<IReadOnlyCollection<CoffeeKind>> GetCoffeeKinds();

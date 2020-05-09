@@ -4,11 +4,11 @@ using Torrefactor.Core.Interfaces;
 
 namespace Torrefactor.Core.Services
 {
-    public class CoffeeProviderSelector : ICoffeeProviderSelector
+    public class CoffeeRoasterSelector : ICoffeeRoasterSelector
     {
-        private readonly IReadOnlyDictionary<string, ICoffeeProvider> _coffeeProviders;
+        private readonly IReadOnlyDictionary<string, ICoffeeRoasterClient> _coffeeProviders;
 
-        public CoffeeProviderSelector(IEnumerable<ICoffeeProvider> coffeeProviders)
+        public CoffeeRoasterSelector(IEnumerable<ICoffeeRoasterClient> coffeeProviders)
         {
             _coffeeProviders = coffeeProviders.ToDictionary(_ => _.Id);
         }
@@ -16,7 +16,7 @@ namespace Torrefactor.Core.Services
         public IReadOnlyCollection<string> GetProviderIds()
             => _coffeeProviders.Keys.ToList();
 
-        public ICoffeeProvider SelectFor(GroupCoffeeOrder order)
+        public ICoffeeRoasterClient SelectFor(GroupCoffeeOrder order)
             => _coffeeProviders[order.ProviderId];
     }
 }

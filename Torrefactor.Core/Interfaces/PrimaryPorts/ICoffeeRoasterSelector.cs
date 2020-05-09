@@ -3,9 +3,9 @@ using Torrefactor.Core.Interfaces;
 
 namespace Torrefactor.Core.Services
 {
-    public interface ICoffeeProviderSelector
+    public interface ICoffeeRoasterSelector
     {
-        ICoffeeProvider SelectFor(GroupCoffeeOrder order);
+        ICoffeeRoasterClient SelectFor(GroupCoffeeOrder order);
         IReadOnlyCollection<string> GetProviderIds();
     }
 }
