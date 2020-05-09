@@ -10,16 +10,16 @@ namespace Torrefactor.Core.Services
     {
         private readonly ICoffeeKindRepository _coffeeKindRepository;
         private readonly IGroupCoffeeOrderRepository _groupCoffeeOrderRepository;
-        private readonly ICoffeeProviderSelector _coffeeProviderSelector;
+        private readonly ICoffeeRoasterSelector _coffeeRoasterSelector;
 
         public CoffeeOrderService(
             ICoffeeKindRepository coffeeKindRepository,
             IGroupCoffeeOrderRepository groupCoffeeOrderRepository,
-            ICoffeeProviderSelector coffeeProviderSelector)
+            ICoffeeRoasterSelector coffeeRoasterSelector)
         {
             _coffeeKindRepository = coffeeKindRepository;
             _groupCoffeeOrderRepository = groupCoffeeOrderRepository;
-            _coffeeProviderSelector = coffeeProviderSelector;
+            _coffeeRoasterSelector = coffeeRoasterSelector;
         }
 
         public async Task<GroupCoffeeOrder?> TryGetCurrentGroupOrder()
@@ -100,7 +100,7 @@ namespace Torrefactor.Core.Services
             if (currentGroupOrder == null)
                 throw new CoffeeOrderException("No group order available");
 
-            var coffeeProvider = _coffeeProviderSelector.SelectFor(currentGroupOrder);
+            var coffeeProvider = _coffeeRoasterSelector.SelectFor(currentGroupOrder);
             
             try
             {

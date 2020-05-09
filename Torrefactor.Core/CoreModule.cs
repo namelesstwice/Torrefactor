@@ -9,7 +9,7 @@ namespace Torrefactor.Core
         {
             services.AddSingleton<CoffeeOrderService>();
             services.AddSingleton<CoffeeKindService>();
-            services.AddSingleton<ICoffeeProviderSelector, CoffeeProviderSelector>();
+            services.AddSingleton<ICoffeeRoasterSelector, CoffeeRoasterSelector>();
         }
     }
 }

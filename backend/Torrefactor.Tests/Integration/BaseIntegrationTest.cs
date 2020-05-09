@@ -29,7 +29,7 @@ namespace Torrefactor.Tests.Integration
                         Secret = "a very secret string that is definitely not used in production"
                     };
 
-                    var fakeCoffeeProvider = A.Fake<ICoffeeProvider>();
+                    var fakeCoffeeProvider = A.Fake<ICoffeeRoasterClient>();
                     A.CallTo(() => fakeCoffeeProvider.GetCoffeeKinds()).Returns(new[]
                     {
                         new CoffeeKind("123", true, new[]
@@ -38,7 +38,7 @@ namespace Torrefactor.Tests.Integration
                         })
                     });
 
-                    var fakeCoffeeProviderSelector = A.Fake<ICoffeeProviderSelector>();
+                    var fakeCoffeeProviderSelector = A.Fake<ICoffeeRoasterSelector>();
                     A.CallTo(() => fakeCoffeeProviderSelector.SelectFor(A<GroupCoffeeOrder>._))
                         .Returns(fakeCoffeeProvider);
 

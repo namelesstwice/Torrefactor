@@ -15,16 +15,16 @@ namespace Torrefactor.Controllers
     {
         private readonly CoffeeKindService _coffeeKindService;
         private readonly CoffeeOrderService _coffeeOrderService;
-        private readonly ICoffeeProviderSelector _coffeeProviderSelector;
+        private readonly ICoffeeRoasterSelector _coffeeRoasterSelector;
 
         public CoffeeKindController(
             CoffeeOrderService coffeeOrderService,
             CoffeeKindService coffeeKindService, 
-            ICoffeeProviderSelector coffeeProviderSelector)
+            ICoffeeRoasterSelector coffeeRoasterSelector)
         {
             _coffeeOrderService = coffeeOrderService;
             _coffeeKindService = coffeeKindService;
-            _coffeeProviderSelector = coffeeProviderSelector;
+            _coffeeRoasterSelector = coffeeRoasterSelector;
         }
 
         [HttpGet("")]
@@ -48,7 +48,7 @@ namespace Torrefactor.Controllers
         [HttpGet("providers")]
         public IReadOnlyCollection<string> GetProviderIds()
         {
-            return _coffeeProviderSelector.GetProviderIds();
+            return _coffeeRoasterSelector.GetProviderIds();
         }
 
         [HttpPost("reload")]
