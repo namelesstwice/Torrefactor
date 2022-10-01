@@ -1,15 +1,14 @@
 using System.Collections.Generic;
-using Newtonsoft.Json;
 
 namespace Torrefactor.Models.Coffee
 {
     public class GroupCoffeeOrderModel
     {
-        [JsonProperty] public bool HasActiveOrder { get; private set; }
+        public bool HasActiveOrder { get; private set; }
         
-        [JsonProperty] public IEnumerable<PersonalCoffeeOrderModel> PersonalOrders { get; }
+        public IEnumerable<PersonalCoffeeOrderModel> PersonalOrders { get; }
         
-        [JsonProperty] public string? RoasterId { get; private set; }
+        public string? RoasterId { get; private set; }
 
 
         public GroupCoffeeOrderModel(

@@ -110,9 +110,9 @@ namespace Torrefactor.Tests.Common
 
         private async Task<ImagesListResponse> GetLocalImage(DockerClient client)
         {
+            // TODO: check params (or move to TestContainers)
             var images = await client.Images.ListImagesAsync(new ImagesListParameters
             {
-                MatchName = $"{Image}:{Tag}"
             });
 
             return images.SingleOrDefault();

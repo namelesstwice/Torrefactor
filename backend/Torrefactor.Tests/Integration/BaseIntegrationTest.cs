@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Bson;
 using Torrefactor.Core;
 using Torrefactor.Core.Interfaces;
 using Torrefactor.Core.Services;
@@ -52,12 +53,12 @@ namespace Torrefactor.Tests.Integration
                     services.AddSingleton(userCollection);
                     services.AddSingleton(roleCollection);
                     services.AddTransient<IRoleStore<ApplicationRole>>(p =>
-                        new RoleStore<ApplicationRole>(roleCollection));
+                        new RoleStore<ApplicationRole, ObjectId>(roleCollection, null));
                     services.AddTransient<IUserStore<ApplicationUser>>(
-                        p => new UserStore<ApplicationUser, ApplicationRole>(
+                        p => new UserStore<ApplicationUser, ApplicationRole, ObjectId>(
                             userCollection,
-                            p.GetService<IRoleStore<ApplicationRole>>(),
-                            p.GetService<ILookupNormalizer>()));
+                            roleCollection,
+                            null));
                 })
                 .UseStartup<Startup>();
 
