@@ -1,19 +1,18 @@
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
 using Torrefactor.Core;
 
 namespace Torrefactor.Models.Coffee
 {
     public class PersonalCoffeeOrderModel
     {
-        [JsonProperty] public string Username { get; }
+        public string Username { get; }
         
-        [JsonProperty] public IEnumerable<CoffeePackModel> CoffeePacks { get; }
+        public IEnumerable<CoffeePackModel> CoffeePacks { get; }
         
-        [JsonProperty] public CoffeePackState OverallState { get; }
+        public CoffeePackState OverallState { get; }
         
-        [JsonProperty] public int TotalCost { get; }
+        public int TotalCost { get; }
 
         public PersonalCoffeeOrderModel(PersonalCoffeeOrder order)
         {

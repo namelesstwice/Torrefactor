@@ -42,7 +42,7 @@ namespace Torrefactor.Controllers
                 return null;
 
             var user = await _userManager.FindByEmailAsync(User.Identity.Name);
-            return new UserModel(User.IsAdmin(), user.DisplayName, user.Email, user.Id);
+            return new UserModel(User.IsAdmin(), user.DisplayName, user.Email, user.Id.ToString());
         }
 
         [Route("sign-in")]
@@ -68,9 +68,11 @@ namespace Torrefactor.Controllers
 
         [Route("sign-out")]
         [HttpPost]
-        public async Task SignOut()
+        public override SignOutResult SignOut()
         {
-            await _signInManager.SignOutAsync();
+            // TODO: async method fix
+            _signInManager.SignOutAsync();
+            return new SignOutResult();
         }
 
         [Route("users/not-confirmed")]
@@ -80,7 +82,7 @@ namespace Torrefactor.Controllers
         {
             return _userManager.Users
                 .Where(_ => !_.EmailConfirmed)
-                .Select(u => new UserModel(false, u.DisplayName, u.Email, u.Id))
+                .Select(u => new UserModel(false, u.DisplayName, u.Email, u.Id.ToString()))
                 .ToList();
         }
 

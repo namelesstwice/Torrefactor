@@ -1,4 +1,3 @@
-using Newtonsoft.Json;
 
 namespace Torrefactor.Models.Coffee
 {
@@ -22,14 +21,14 @@ namespace Torrefactor.Models.Coffee
             BigPack = bigPack;
         }
 
-        [JsonProperty] public string Name { get; private set; } = "";
+        public string Name { get; private set; } = "";
 
-        [JsonProperty] public CoffeePackModel[] Packs { get; private set; } = new CoffeePackModel[0];
+        public CoffeePackModel[] Packs { get; private set; } = new CoffeePackModel[0];
 
-        [JsonProperty] public bool IsAvailable { get; private set; }
+        public bool IsAvailable { get; private set; }
 
-        [JsonProperty] public CoffeePackModel? SmallPack { get; private set; }
+        public CoffeePackModel? SmallPack { get; private set; }
 
-        [JsonProperty] public CoffeePackModel? BigPack { get; private set; }
+        public CoffeePackModel? BigPack { get; private set; }
     }
 }

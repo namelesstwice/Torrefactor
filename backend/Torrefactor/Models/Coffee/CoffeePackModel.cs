@@ -1,4 +1,3 @@
-using Newtonsoft.Json;
 using Torrefactor.Core;
 
 namespace Torrefactor.Models.Coffee
@@ -17,12 +16,12 @@ namespace Torrefactor.Models.Coffee
             Count = count;
         }
 
-        [JsonProperty] public string CoffeeKindName { get; private set; } = "";
+        public string CoffeeKindName { get; private set; } = "";
 
-        [JsonProperty] public int Weight { get; private set; }
+        public int Weight { get; private set; }
 
-        [JsonProperty] public int Price { get; private set; }
+        public int Price { get; private set; }
 
-        [JsonProperty] public int Count { get; private set; }
+        public int Count { get; private set; }
     }
 }
