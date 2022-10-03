@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using MongoDB.Bson;
 using Torrefactor.Entities.Auth;
 using Torrefactor.Infrastructure;
 using Torrefactor.Models.Auth;
@@ -21,17 +22,19 @@ namespace Torrefactor.Controllers
     {
         private readonly Config _config;
         private readonly SignInManager<ApplicationUser> _signInManager;
-
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
 
         public AuthController(
             SignInManager<ApplicationUser> signInManager,
             UserManager<ApplicationUser> userManager,
+            RoleManager<ApplicationRole> roleManager,
             Config config)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _config = config;
+            _roleManager = roleManager;
         }
 
         [Route("users/current")]
@@ -68,11 +71,9 @@ namespace Torrefactor.Controllers
 
         [Route("sign-out")]
         [HttpPost]
-        public override SignOutResult SignOut()
-        {
-            // TODO: async method fix
-            _signInManager.SignOutAsync();
-            return new SignOutResult();
+        public async Task SignOutAsync()
+        { 
+            await _signInManager.SignOutAsync();
         }
 
         [Route("users/not-confirmed")]
@@ -114,6 +115,17 @@ namespace Torrefactor.Controllers
 
             var isAdmin = AuthExtensions.IsAdminEmail(model.Email, _config);
 
+            if (!await _roleManager.RoleExistsAsync("admin"))
+            {
+                await _roleManager.CreateAsync(new ApplicationRole()
+                {
+                    Id = new ObjectId(),
+                    Name = "admin"
+                });
+            }
+
+            var adminRole = await _roleManager.FindByNameAsync("admin");
+
             var result = await _userManager.CreateAsync(
                 new ApplicationUser
                 {
@@ -121,8 +133,7 @@ namespace Torrefactor.Controllers
                     Email = model.Email,
                     DisplayName = model.Name,
                     EmailConfirmed = isAdmin,
-                    // todo: update roles to .NET 6
-                    Roles = isAdmin ? new List<string> {"admin"} : new List<string>()
+                    Roles = isAdmin ? new List<string> {adminRole.Id.ToString()} : new List<string>()
                 },
                 model.Password);
 
