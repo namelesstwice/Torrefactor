@@ -1,5 +1,8 @@
 using System;
 using System.Threading.Tasks;
+using DotNet.Testcontainers.Builders;
+using DotNet.Testcontainers.Configurations;
+using DotNet.Testcontainers.Containers;
 using MongoDB.Driver;
 using NUnit.Framework;
 
@@ -7,7 +10,14 @@ namespace Torrefactor.Tests.Common
 {
     public abstract class BaseMongoTest
     {
-        private readonly MongoDockerContainer _mongoContainer = new MongoDockerContainer();
+        private readonly MongoDbTestcontainer _mongoContainer = new TestcontainersBuilder<MongoDbTestcontainer>()
+            .WithDatabase(new MongoDbTestcontainerConfiguration()
+            {
+                Database = "tst",
+                Username = "tst",
+                Password = "tst"
+            })
+            .Build();
 
         protected IMongoDatabase MongoDatabase { get; private set; }
         protected string ConnectionString { get; private set; }
@@ -15,20 +25,22 @@ namespace Torrefactor.Tests.Common
         [OneTimeSetUp]
         public async Task OneTimeSetup()
         {
-            await _mongoContainer.Run();
+            await _mongoContainer.StartAsync();
         }
 
         [SetUp]
         public void Setup()
         {
-            MongoDatabase = _mongoContainer.Connect().GetDatabase($"tempdb-{Guid.NewGuid()}");
+            var client = new MongoClient(_mongoContainer.ConnectionString);
+            MongoDatabase = client.GetDatabase($"tempdb-{Guid.NewGuid()}");
             ConnectionString = _mongoContainer.ConnectionString;
         }
 
         [OneTimeTearDown]
         public async Task OneTimeTearDown()
         {
-            await _mongoContainer.StopAndRemove();
+            await _mongoContainer.StopAsync();
+            await _mongoContainer.CleanUpAsync();
         }
     }
 }

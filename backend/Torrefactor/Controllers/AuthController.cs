@@ -121,6 +121,7 @@ namespace Torrefactor.Controllers
                     Email = model.Email,
                     DisplayName = model.Name,
                     EmailConfirmed = isAdmin,
+                    // todo: update roles to .NET 6
                     Roles = isAdmin ? new List<string> {"admin"} : new List<string>()
                 },
                 model.Password);
