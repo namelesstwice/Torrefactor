@@ -83,6 +83,7 @@ namespace Torrefactor.Controllers
         {
             return _userManager.Users
                 .Where(_ => !_.EmailConfirmed)
+                .AsEnumerable()
                 .Select(u => new UserModel(false, u.DisplayName, u.Email, u.Id.ToString()))
                 .ToList();
         }
