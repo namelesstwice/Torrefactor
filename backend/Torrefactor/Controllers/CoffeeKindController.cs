@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Torrefactor.Core.Services;
+using Torrefactor.Models.Auth;
 using Torrefactor.Models.Coffee;
 
 namespace Torrefactor.Controllers
@@ -49,14 +50,14 @@ namespace Torrefactor.Controllers
         }
 
         [HttpGet("roasters")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = BuiltInRoles.Admin)]
         public IEnumerable<CoffeeRoasterModel> GetCoffeeRoasters()
         {
             return _coffeeRoasterSelector.GetRoasters().Select(_ => new CoffeeRoasterModel(_.Id, _.Name));
         }
 
         [HttpPost("reload")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = BuiltInRoles.Admin)]
         public async Task ReloadCoffeeKinds()
         {
             await _coffeeKindService.ReloadCoffeeKinds();

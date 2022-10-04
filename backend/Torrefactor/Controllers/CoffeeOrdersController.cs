@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Torrefactor.Core;
 using Torrefactor.Core.Services;
+using Torrefactor.Models.Auth;
 using Torrefactor.Models.Coffee;
 
 namespace Torrefactor.Controllers
@@ -22,7 +23,7 @@ namespace Torrefactor.Controllers
         }
 
         [HttpGet("")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = BuiltInRoles.Admin)]
         public async Task<GroupCoffeeOrderModel> GetCurrentGroupOrder()
         {
             var currentOrder = await _coffeeOrderService.TryGetCurrentGroupOrder();
@@ -49,14 +50,14 @@ namespace Torrefactor.Controllers
         }
 
         [HttpPost("send")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = BuiltInRoles.Admin)]
         public async Task SendToCoffeeProvider([FromBody] string key)
         {
             await _coffeeOrderService.SendToCoffeeProvider(key);
         }
 
         [HttpPost("")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = BuiltInRoles.Admin)]
         public async Task CreateNewGroupOrder([FromQuery] string? providerId)
         {
             await _coffeeOrderService.CreateNewGroupOrder(
@@ -64,7 +65,7 @@ namespace Torrefactor.Controllers
         }
 
         [HttpDelete("")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = BuiltInRoles.Admin)]
         public async Task CancelCurrentGroupOrder()
         {
             await _coffeeOrderService.CancelCurrentGroupOrder();

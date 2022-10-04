@@ -78,7 +78,7 @@ namespace Torrefactor.Controllers
 
         [Route("users/not-confirmed")]
         [HttpGet]
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = BuiltInRoles.Admin)]
         public IReadOnlyCollection<UserModel> GetPendingInviteRequests()
         {
             return _userManager.Users
@@ -90,7 +90,7 @@ namespace Torrefactor.Controllers
 
         [Route("users/{id}/confirmation-state")]
         [HttpPut]
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = BuiltInRoles.Admin)]
         public async Task ApproveOrDecline(string id, bool isApproved)
         {
             var user = await _userManager.FindByIdAsync(id);
@@ -118,31 +118,33 @@ namespace Torrefactor.Controllers
 
             if (!await _roleManager.RoleExistsAsync("admin"))
             {
-                await _roleManager.CreateAsync(new ApplicationRole()
+                await _roleManager.CreateAsync(new ApplicationRole
                 {
-                    Id = new ObjectId(),
+                    Id = new ObjectId(BuiltInRoles.Admin),
                     Name = "admin"
                 });
             }
 
             var adminRole = await _roleManager.FindByNameAsync("admin");
 
-            var result = await _userManager.CreateAsync(
-                new ApplicationUser
-                {
-                    UserName = model.Email,
-                    Email = model.Email,
-                    DisplayName = model.Name,
-                    EmailConfirmed = isAdmin,
-                    Roles = isAdmin ? new List<string> {adminRole.Id.ToString()} : new List<string>()
-                },
-                model.Password);
+            var user = new ApplicationUser
+            {
+                UserName = model.Email,
+                Email = model.Email,
+                DisplayName = model.Name,
+                EmailConfirmed = isAdmin,
+            };
 
+            var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
-                return BadRequest(new
-                {
-                    result.Errors
-                });
+                return BadRequest(new { result.Errors });
+
+            if (isAdmin)
+            {
+                result = await _userManager.AddToRoleAsync(user, adminRole.Name);
+                if (!result.Succeeded)
+                    return BadRequest(new { result.Errors });
+            }
 
             return Ok();
         }
