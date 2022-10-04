@@ -17,6 +17,8 @@
     </ItemGroup>
     
     <ItemGroup>
+      <ProjectReference Include="..\Torrefactor.Core\Torrefactor.Core.csproj" />
+      <ProjectReference Include="..\Torrefactor.Infrastructure\Torrefactor.Infrastructure.csproj" />
       <ProjectReference Include="..\Torrefactor\Torrefactor.csproj" />
     </ItemGroup>
     
