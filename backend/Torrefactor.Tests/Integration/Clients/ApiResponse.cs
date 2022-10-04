@@ -1,12 +1,28 @@
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 
 namespace Torrefactor.Tests.Integration.Clients
 {
+    
+    public class PrivateResolver : DefaultContractResolver {
+        protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+        {
+            var prop = base.CreateProperty(member, memberSerialization);
+            if (!prop.Writable) {
+                var property = member as PropertyInfo;
+                var hasPrivateSetter = property?.GetSetMethod(true) != null;
+                prop.Writable = hasPrivateSetter;
+            }
+            return prop;
+        }
+    }
+    
     public static class ApiResponseExtensions
     {
         public static Task<ApiResponse> ToApiResponse(this Task<HttpResponseMessage> httpResponseTask)
@@ -41,7 +57,18 @@ namespace Torrefactor.Tests.Integration.Clients
         public T Model<T>()
         {
             EnsureSuccessStatusCode();
-            return JsonConvert.DeserializeObject<T>(Content);
+
+            var contractResolver = new PrivateResolver()
+            {
+                NamingStrategy = new CamelCaseNamingStrategy()
+            };
+            
+            var res = JsonConvert.DeserializeObject<T>(Content, new JsonSerializerSettings()
+            {
+                ContractResolver = contractResolver,
+            });
+
+            return res;
         }
 
         private void EnsureSuccessStatusCode()
