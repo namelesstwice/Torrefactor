@@ -9,7 +9,7 @@ import { CoffeeRoaster } from '../_models/coffee-roaster';
 })
 export class CoffeeRoasterSelectDialogComponent implements OnInit {
 
-  public selected: string;
+  public selected: string = '';
 
   constructor(
     public dialogRef: MatDialogRef<CoffeeRoasterSelectDialogComponent>,

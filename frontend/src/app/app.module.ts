@@ -25,9 +25,7 @@ import { JwtInterceptor } from './_helpers/jwt.interceptor';
 import { InvitesComponent } from './invites/invites.component';
 import { OrdersComponent } from './orders/orders.component';
 import { CoffeeRoasterSelectDialogComponent } from './coffee-roaster-select-dialog/coffee-roaster-select-dialog.component';
-import { FillRoasterKeyDisalogComponent } from './fill-roaster-key-disalog/fill-roaster-key-disalog.component';
 import { FillRoasterKeyDialogComponent } from './fill-roaster-key-dialog/fill-roaster-key-dialog.component';
-
 
 @NgModule({
   declarations: [
@@ -39,7 +37,7 @@ import { FillRoasterKeyDialogComponent } from './fill-roaster-key-dialog/fill-ro
     InvitesComponent,
     OrdersComponent,
     CoffeeRoasterSelectDialogComponent,
-    FillRoasterKeyDisalogComponent,
+    FillRoasterKeyDialogComponent,
     FillRoasterKeyDialogComponent
   ],
   imports: [
