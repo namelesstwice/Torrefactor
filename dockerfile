@@ -1,9 +1,11 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1-alpine AS build-dotnet
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build-dotnet
 WORKDIR /app
 
 COPY *.sln ./
 COPY backend/Torrefactor/*.csproj backend/Torrefactor/
 COPY backend/Torrefactor.Tests/*.csproj backend/Torrefactor.Tests/
+COPY backend/Torrefactor.Core/*.csproj backend/Torrefactor.Core/
+COPY backend/Torrefactor.Infrastructure/*.csproj backend/Torrefactor.Infrastructure/
 RUN dotnet restore
 COPY . .
 WORKDIR /app/backend/Torrefactor
@@ -16,8 +18,8 @@ RUN ls
 RUN npm ci
 RUN npm run ng build
 
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS runtime
 WORKDIR /app
 COPY --from=build-dotnet /app/backend/Torrefactor/out ./
-COPY --from=build-ng /app/dist/frontend ./
+COPY --from=build-ng /app/dist/torrefactor ./
 ENTRYPOINT ["dotnet", "Torrefactor.dll"]
