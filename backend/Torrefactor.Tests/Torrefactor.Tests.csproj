@@ -25,6 +25,8 @@
     <ItemGroup>
       <None Remove="Data\rockets.coffee.html" />
       <EmbeddedResource Include="Data\rockets.coffee.html" />
+      <None Remove="Data\torrefacto.html" />
+      <EmbeddedResource Include="Data\torrefacto.html" />
     </ItemGroup>
 
 </Project>

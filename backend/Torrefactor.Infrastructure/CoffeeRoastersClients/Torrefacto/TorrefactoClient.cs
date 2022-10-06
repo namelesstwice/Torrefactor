@@ -10,7 +10,7 @@ using Torrefactor.Infrastructure.Utils;
 
 namespace Torrefactor.Infrastructure.CoffeeProviders.Torrefacto
 {
-    internal sealed class TorrefactoClient : ICoffeeRoasterClient
+    public sealed class TorrefactoClient : ICoffeeRoasterClient
     {
         private const string _torrefactoHostName = "https://www.torrefacto.ru";
         private readonly CookieAwareWebClient _client = new CookieAwareWebClient();
