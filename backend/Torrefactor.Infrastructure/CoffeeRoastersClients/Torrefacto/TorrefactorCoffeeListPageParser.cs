@@ -7,7 +7,7 @@ using Torrefactor.Core;
 
 namespace Torrefactor.Infrastructure.CoffeeProviders.Torrefacto
 {
-    internal static class TorrefactorCoffeeListPageParser
+    public static class TorrefactorCoffeeListPageParser
     {
         public static IReadOnlyCollection<CoffeeKind> Parse(Stream stream)
         {
@@ -44,7 +44,10 @@ namespace Torrefactor.Infrastructure.CoffeeProviders.Torrefacto
 
             foreach (var packSizeHolder in packSizeHolders)
             {
-                var price = int.Parse(priceHolder.InnerText.Trim(' ', '₽'));
+                var price = int.Parse(priceHolder.InnerText
+                    .Replace("₽", "")
+                    .Replace("&nbsp;", "")
+                    .Replace(" ", ""));
                 var packSize = int.Parse(packSizeHolder.InnerText.Replace('г', ' ').Trim());
                 var id = packSizeHolder.Attributes["value"].Value;
 
