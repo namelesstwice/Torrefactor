@@ -14,7 +14,8 @@ export class AuthService {
   private currentTokenSubject: BehaviorSubject<string>;
 
   constructor(private http: HttpClient) { 
-    this.currentTokenSubject = new BehaviorSubject<string>(localStorage.getItem('jwt'));
+    const jwt = localStorage.getItem('jwt');
+    this.currentTokenSubject = new BehaviorSubject<string>(jwt!);
   }
 
   public get currentTokenValue() {
@@ -34,7 +35,7 @@ export class AuthService {
       })
       .pipe(catchError((e: HttpErrorResponse) => {
         if (e.error.errors) {
-          if (e.error.errors.some(e => e.code === 'DuplicateEmail')) {
+          if (e.error.errors.some((e: any) => e.code === 'DuplicateEmail')) {
             return throwError(new AuthError('User with this email is already registered.'));
           }
         }
@@ -65,7 +66,7 @@ export class AuthService {
   }
 
   logout() {
-    this.currentTokenSubject.next(null);
+    this.currentTokenSubject.next('');
     localStorage.removeItem('jwt');
   }
 }

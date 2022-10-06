@@ -9,7 +9,7 @@ import { InvitesService } from '../_services/invites.service';
 })
 export class InvitesComponent implements OnInit {
 
-  public invites: User[];
+  public invites: User[] = [];
 
   constructor(private invitesSvc: InvitesService) { }
 
