@@ -1,0 +1,1 @@
+A service that allows to make group coffee orders (used it for a couple of years to order coffee with my teammates). Eventually refactored it to support multiple coffee roasters (Torrefacto, RocketsCoffee)
